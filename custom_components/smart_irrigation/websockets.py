@@ -716,8 +716,24 @@ async def websocket_set_weather_service(hass: HomeAssistant, connection, msg):
             const.CONF_WEATHER_SERVICE_API_KEY,
         )
     ):
+        # Drop any weather-service keys an earlier Reconfigure left in options, so
+        # they cannot override this panel change on the next setup (setup applies
+        # options over data). See #683.
+        new_options = {
+            k: v
+            for k, v in entry.options.items()
+            if k
+            not in (
+                const.CONF_USE_WEATHER_SERVICE,
+                const.CONF_WEATHER_SERVICE,
+                const.CONF_WEATHER_SERVICE_API_KEY,
+                const.CONF_WEATHER_SERVICE_API_VERSION,
+            )
+        }
         hass.data.setdefault(const.DOMAIN, {})["_suppress_options_reload"] = True
-        hass.config_entries.async_update_entry(entry, data=new_data)
+        hass.config_entries.async_update_entry(
+            entry, data=new_data, options=new_options
+        )
 
     _LOGGER.info("Weather service updated via panel (use=%s, service=%s)", use, service)
     connection.send_result(msg["id"], {"success": True})

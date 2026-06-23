@@ -119,11 +119,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.data[const.DOMAIN][const.CONF_WEATHER_SERVICE_API_KEY] = entry.data[
                 "owm_api_key"
             ]
-    # logic here is: if options are set that do not agree with the data settings, use the options
-    # handle options flow data
-    if const.CONF_USE_WEATHER_SERVICE in entry.options and entry.options.get(
-        const.CONF_USE_WEATHER_SERVICE
-    ) != entry.data.get(const.CONF_USE_WEATHER_SERVICE):
+    # Options (set by the Reconfigure flow) override the data set at install.
+    # Apply them whenever present, not only when use_weather_service itself
+    # changed: reconfiguring just the API key must take effect, otherwise the
+    # stale key in entry.data keeps being used and the service returns 401 (#683).
+    if const.CONF_USE_WEATHER_SERVICE in entry.options:
         hass.data[const.DOMAIN][const.CONF_USE_WEATHER_SERVICE] = entry.options.get(
             const.CONF_USE_WEATHER_SERVICE
         )
