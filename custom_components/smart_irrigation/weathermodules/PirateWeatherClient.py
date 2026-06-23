@@ -168,10 +168,12 @@ class PirateWeatherClient:  # pylint: disable=invalid-name
                         parsed_data[MAPPING_DEWPOINT] = data[
                             PirateWeather_dew_point_key_name
                         ]
-                        # add precip from daily
-                        parsed_data[MAPPING_PRECIPITATION] = data[
-                            PirateWeather_precip_key_name
-                        ]
+                        # Pirate Weather returns precipAccumulation in centimetres
+                        # (si units); this integration works in millimetres, so x10.
+                        _precip = data.get(PirateWeather_precip_key_name)
+                        parsed_data[MAPPING_PRECIPITATION] = (
+                            _precip * 10 if _precip is not None else 0.0
+                        )
                         parsed_data_total.append(parsed_data)
                     self._cached_forecast_data = parsed_data_total
                     self._last_time_called = datetime.datetime.now()
@@ -290,12 +292,14 @@ class PirateWeatherClient:  # pylint: disable=invalid-name
                     # add precip from daily
                     dailydata = doc[PirateWeather_daily_weather_key_name]["data"][0]
                     if dailydata is not None:
-                        parsed_data[MAPPING_PRECIPITATION] = dailydata[
-                            PirateWeather_precip_key_name
-                        ]
+                        # precipAccumulation is centimetres in si units; x10 to mm.
+                        _daily_precip = dailydata.get(PirateWeather_precip_key_name)
+                        parsed_data[MAPPING_PRECIPITATION] = (
+                            _daily_precip * 10 if _daily_precip is not None else 0.0
+                        )
                         _LOGGER.debug(
-                            "PirateWeatherClient daily precipitation: %s",
-                            dailydata[PirateWeather_precip_key_name],
+                            "PirateWeatherClient daily precipitation (mm): %s",
+                            parsed_data[MAPPING_PRECIPITATION],
                         )
 
                     else:
