@@ -31,6 +31,11 @@ export const CONF_PRECIPITATION_THRESHOLD_MM = "precipitation_threshold_mm";
 // Days between irrigation configuration
 export const CONF_DAYS_BETWEEN_IRRIGATION = "days_between_irrigation";
 
+// OpenSprinkler bridge configuration
+export const CONF_OPENSPRINKLER_INTEGRATION = "opensprinkler_integration";
+export const CONF_OPENSPRINKLER_STATION_MAP = "opensprinkler_station_map";
+export const CONF_OPENSPRINKLER_QUEUE_OPTION = "opensprinkler_queue_option";
+
 // Irrigation start trigger configuration
 export const CONF_IRRIGATION_START_TRIGGERS = "irrigation_start_triggers";
 export const TRIGGER_TYPE_SUNRISE = "sunrise";

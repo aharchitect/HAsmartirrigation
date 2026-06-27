@@ -102,6 +102,17 @@ CONF_DEFAULT_IU_SYNC_SCHEDULES = False
 CONF_IU_SHARE_ZONE_DATA = "iu_share_zone_data"
 CONF_DEFAULT_IU_SHARE_ZONE_DATA = False
 
+# OpenSprinkler Bridge
+CONF_OPENSPRINKLER_INTEGRATION = "opensprinkler_integration"
+CONF_DEFAULT_OPENSPRINKLER_INTEGRATION = False
+CONF_OPENSPRINKLER_STATION_MAP = "opensprinkler_station_map"
+CONF_DEFAULT_OPENSPRINKLER_STATION_MAP = {}
+CONF_OPENSPRINKLER_QUEUE_OPTION = "opensprinkler_queue_option"
+CONF_DEFAULT_OPENSPRINKLER_QUEUE_OPTION = "append"
+OPENSPRINKLER_DOMAIN = "opensprinkler"
+OPENSPRINKLER_SERVICE_RUN_STATION = "run_station"
+OPENSPRINKLER_SERVICE_STOP = "stop"
+
 # Trigger types
 TRIGGER_TYPE_SUNRISE = "sunrise"
 TRIGGER_TYPE_SUNSET = "sunset"
@@ -414,8 +425,13 @@ SERVICE_DELETE_SEASONAL_ADJUSTMENT = "delete_seasonal_adjustment"
 SERVICE_SYNC_WITH_IRRIGATION_UNLIMITED = "sync_with_irrigation_unlimited"
 SERVICE_SEND_ZONE_DATA_TO_IU = "send_zone_data_to_irrigation_unlimited"
 SERVICE_GET_IU_SCHEDULE_STATUS = "get_irrigation_unlimited_status"
+SERVICE_RUN_OPENSPRINKLER_ZONE = "run_opensprinkler_zone"
+SERVICE_RUN_OPENSPRINKLER_ZONES = "run_opensprinkler_zones"
+SERVICE_GET_OPENSPRINKLER_STATUS = "get_opensprinkler_status"
+SERVICE_CONFIGURE_OPENSPRINKLER_BRIDGE = "configure_opensprinkler_bridge"
 
 # Events
 EVENT_RECURRING_SCHEDULE_TRIGGERED = "recurring_schedule_triggered"
 EVENT_SEASONAL_ADJUSTMENT_APPLIED = "seasonal_adjustment_applied"
 EVENT_IU_SYNC_COMPLETED = "irrigation_unlimited_sync_completed"
+EVENT_OPENSPRINKLER_RUN_COMPLETED = "opensprinkler_run_completed"
