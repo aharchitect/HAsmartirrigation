@@ -107,6 +107,9 @@ class SmartIrrigationConfigView(HomeAssistantView):
                 vol.Optional(const.CONF_MANUAL_ELEVATION): vol.Any(
                     None, vol.Coerce(float)
                 ),
+                vol.Optional(const.CONF_OPENSPRINKLER_INTEGRATION): cv.boolean,
+                vol.Optional(const.CONF_OPENSPRINKLER_STATION_MAP): dict,
+                vol.Optional(const.CONF_OPENSPRINKLER_QUEUE_OPTION): cv.string,
             }
         )
     )

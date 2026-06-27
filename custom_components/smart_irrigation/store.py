@@ -41,6 +41,9 @@ from .const import (
     CONF_DEFAULT_IRRIGATION_START_TRIGGERS,
     CONF_DEFAULT_MAXIMUM_BUCKET,
     CONF_DEFAULT_MAXIMUM_DURATION,
+    CONF_DEFAULT_OPENSPRINKLER_INTEGRATION,
+    CONF_DEFAULT_OPENSPRINKLER_QUEUE_OPTION,
+    CONF_DEFAULT_OPENSPRINKLER_STATION_MAP,
     CONF_DEFAULT_PRECIPITATION_THRESHOLD_MM,
     CONF_DEFAULT_RECURRING_SCHEDULES,
     CONF_DEFAULT_SEASONAL_ADJUSTMENTS,
@@ -55,6 +58,9 @@ from .const import (
     CONF_MANUAL_LATITUDE,
     CONF_MANUAL_LONGITUDE,
     CONF_METRIC,
+    CONF_OPENSPRINKLER_INTEGRATION,
+    CONF_OPENSPRINKLER_QUEUE_OPTION,
+    CONF_OPENSPRINKLER_STATION_MAP,
     CONF_PRECIPITATION_THRESHOLD_MM,
     CONF_SENSOR_DEBOUNCE,
     CONF_SKIP_IRRIGATION_ON_PRECIPITATION,
@@ -225,6 +231,15 @@ class Config:
     manual_latitude = attr.ib(type=float, default=None)
     manual_longitude = attr.ib(type=float, default=None)
     manual_elevation = attr.ib(type=float, default=0)
+    opensprinkler_integration = attr.ib(
+        type=bool, default=CONF_DEFAULT_OPENSPRINKLER_INTEGRATION
+    )
+    opensprinkler_station_map = attr.ib(
+        type=dict, default=CONF_DEFAULT_OPENSPRINKLER_STATION_MAP
+    )
+    opensprinkler_queue_option = attr.ib(
+        type=str, default=CONF_DEFAULT_OPENSPRINKLER_QUEUE_OPTION
+    )
 
 
 class MigratableStore(Store):
@@ -322,6 +337,18 @@ class MigratableStore(Store):
                 data["config"][
                     CONF_DAYS_SINCE_LAST_IRRIGATION
                 ] = CONF_DEFAULT_DAYS_SINCE_LAST_IRRIGATION
+            if CONF_OPENSPRINKLER_INTEGRATION not in data["config"]:
+                data["config"][
+                    CONF_OPENSPRINKLER_INTEGRATION
+                ] = CONF_DEFAULT_OPENSPRINKLER_INTEGRATION
+            if CONF_OPENSPRINKLER_STATION_MAP not in data["config"]:
+                data["config"][
+                    CONF_OPENSPRINKLER_STATION_MAP
+                ] = CONF_DEFAULT_OPENSPRINKLER_STATION_MAP
+            if CONF_OPENSPRINKLER_QUEUE_OPTION not in data["config"]:
+                data["config"][
+                    CONF_OPENSPRINKLER_QUEUE_OPTION
+                ] = CONF_DEFAULT_OPENSPRINKLER_QUEUE_OPTION
 
             # Get valid field names from Config class to filter out unrecognized keys
             valid_fields = set(attr.fields_dict(Config).keys())
@@ -468,6 +495,18 @@ class SmartIrrigationStorage:
                 manual_latitude=data["config"].get(CONF_MANUAL_LATITUDE, None),
                 manual_longitude=data["config"].get(CONF_MANUAL_LONGITUDE, None),
                 manual_elevation=data["config"].get(CONF_MANUAL_ELEVATION, 0),
+                opensprinkler_integration=data["config"].get(
+                    CONF_OPENSPRINKLER_INTEGRATION,
+                    CONF_DEFAULT_OPENSPRINKLER_INTEGRATION,
+                ),
+                opensprinkler_station_map=data["config"].get(
+                    CONF_OPENSPRINKLER_STATION_MAP,
+                    CONF_DEFAULT_OPENSPRINKLER_STATION_MAP,
+                ),
+                opensprinkler_queue_option=data["config"].get(
+                    CONF_OPENSPRINKLER_QUEUE_OPTION,
+                    CONF_DEFAULT_OPENSPRINKLER_QUEUE_OPTION,
+                ),
             )
 
             if "zones" in data:

@@ -58,6 +58,7 @@ from .helpers import (
 )
 from .irrigation_unlimited import IrrigationUnlimitedIntegration
 from .localize import localize
+from .opensprinkler import OpenSprinklerBridge
 from .panel import async_register_panel, remove_panel
 from .scheduler import RecurringScheduleManager, SeasonalAdjustmentManager
 from .store import SmartIrrigationStorage, async_get_registry
@@ -244,6 +245,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     await coordinator.recurring_schedule_manager.async_load_schedules()
     await coordinator.seasonal_adjustment_manager.async_load_adjustments()
     await coordinator.irrigation_unlimited_integration.async_initialize()
+    await coordinator.opensprinkler_bridge.async_initialize()
 
     await coordinator.update_subscriptions()
     return True
@@ -447,6 +449,7 @@ class SmartIrrigationCoordinator(DataUpdateCoordinator):
         self.irrigation_unlimited_integration = IrrigationUnlimitedIntegration(
             hass, self
         )
+        self.opensprinkler_bridge = OpenSprinklerBridge(hass, self)
 
         # WIP v2024.6.X:
         # experiment with subscriptions on sensors
@@ -604,6 +607,9 @@ class SmartIrrigationCoordinator(DataUpdateCoordinator):
         # handle auto clear changes
         await self.set_up_auto_clear_time(data)
         await self.store.async_update_config(data)
+        await self.opensprinkler_bridge.async_update_configuration(
+            await self.store.async_get_config()
+        )
         async_dispatcher_send(self.hass, const.DOMAIN + "_config_updated")
 
     async def async_apply_weather_service(self, use, service, api_key):
@@ -3091,6 +3097,22 @@ class SmartIrrigationCoordinator(DataUpdateCoordinator):
                 _LOGGER.info(
                     "Fired start event %s for trigger '%s'", event_to_fire, name
                 )
+                if self.opensprinkler_bridge.is_enabled():
+                    try:
+                        bridge_result = (
+                            await self.opensprinkler_bridge.async_run_zones()
+                        )
+                        _LOGGER.info(
+                            "OpenSprinkler bridge handled trigger '%s': %s",
+                            name,
+                            bridge_result,
+                        )
+                    except Exception as bridge_error:
+                        _LOGGER.error(
+                            "OpenSprinkler bridge failed for trigger '%s': %s",
+                            name,
+                            bridge_error,
+                        )
 
                 # On the first actual fire of the day, mark the day as watered
                 # and reset the days-since counter (once, not per trigger).
@@ -3627,6 +3649,84 @@ class SmartIrrigationCoordinator(DataUpdateCoordinator):
             _LOGGER.error("Failed to get IU schedule status: %s", e)
             raise
 
+    async def handle_run_opensprinkler_zone(self, call):
+        """Run one mapped OpenSprinkler station for a Smart Irrigation zone."""
+        zone_id = call.data.get("zone_id")
+        station_entity_id = call.data.get("entity_id")
+        run_seconds = call.data.get("run_seconds")
+        queue_option = call.data.get("queue_option")
+
+        _LOGGER.info("Run OpenSprinkler zone service called for zone: %s", zone_id)
+
+        result = await self.opensprinkler_bridge.async_run_zone(
+            zone_id,
+            station_entity_id=station_entity_id,
+            run_seconds=run_seconds,
+            queue_option=queue_option,
+        )
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_zone_result",
+            {
+                "success": True,
+                "result": result,
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
+
+    async def handle_run_opensprinkler_zones(self, call):
+        """Run mapped OpenSprinkler stations for Smart Irrigation zones."""
+        zone_ids = call.data.get("zone_ids")
+
+        _LOGGER.info("Run OpenSprinkler zones service called for zones: %s", zone_ids)
+
+        result = await self.opensprinkler_bridge.async_run_zones(zone_ids)
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_run_result",
+            {
+                "success": True,
+                "result": result,
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
+
+    async def handle_get_opensprinkler_status(self, call):
+        """Get OpenSprinkler bridge status service handler."""
+        _LOGGER.info("Get OpenSprinkler status service called")
+
+        status = await self.opensprinkler_bridge.async_get_status()
+        self.hass.data[const.DOMAIN]["opensprinkler_status"] = status
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_status",
+            {
+                "status": status,
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
+
+    async def handle_configure_opensprinkler_bridge(self, call):
+        """Configure the optional OpenSprinkler bridge."""
+        changes = {}
+        if "enabled" in call.data:
+            changes[const.CONF_OPENSPRINKLER_INTEGRATION] = call.data["enabled"]
+        if "station_map" in call.data:
+            changes[const.CONF_OPENSPRINKLER_STATION_MAP] = call.data["station_map"]
+        if "queue_option" in call.data:
+            changes[const.CONF_OPENSPRINKLER_QUEUE_OPTION] = call.data["queue_option"]
+
+        if not changes:
+            _LOGGER.debug("OpenSprinkler bridge configuration service called with no changes")
+            return
+
+        await self.async_update_config(changes)
+        status = await self.opensprinkler_bridge.async_get_status()
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_configured",
+            {
+                "status": status,
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
+
     async def async_generate_watering_calendar(self, zone_id: int | None = None):
         """Generate a 12-month watering calendar for a zone or all zones.
 
@@ -4077,4 +4177,29 @@ def register_services(hass: HomeAssistant):
         const.DOMAIN,
         const.SERVICE_GET_IU_SCHEDULE_STATUS,
         coordinator.handle_get_iu_schedule_status,
+    )
+
+    # OpenSprinkler bridge services
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_RUN_OPENSPRINKLER_ZONE,
+        coordinator.handle_run_opensprinkler_zone,
+    )
+
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_RUN_OPENSPRINKLER_ZONES,
+        coordinator.handle_run_opensprinkler_zones,
+    )
+
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_GET_OPENSPRINKLER_STATUS,
+        coordinator.handle_get_opensprinkler_status,
+    )
+
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_CONFIGURE_OPENSPRINKLER_BRIDGE,
+        coordinator.handle_configure_opensprinkler_bridge,
     )
