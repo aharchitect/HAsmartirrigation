@@ -44,6 +44,8 @@ export class SmartIrrigationConfig {
   observed_watering_enabled: boolean;
   direct_valve_control_enabled: boolean;
   zone_sequencing: string;
+  opensprinkler_integration: boolean;
+  opensprinkler_station_map: Record<string, string>;
 
   constructor() {
     this.calctime = "23:00";
@@ -72,6 +74,8 @@ export class SmartIrrigationConfig {
     this.observed_watering_enabled = false;
     this.direct_valve_control_enabled = false;
     this.zone_sequencing = "sequential";
+    this.opensprinkler_integration = false;
+    this.opensprinkler_station_map = {};
   }
 }
 
