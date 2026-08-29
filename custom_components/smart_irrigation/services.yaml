@@ -369,3 +369,87 @@ send_zone_data_to_irrigation_unlimited:
 get_irrigation_unlimited_status:
   name: Get Irrigation Unlimited status
   description: Get the current status of Irrigation Unlimited entities and schedules.
+
+# OpenSprinkler Bridge Services
+run_opensprinkler_zone:
+  name: Run OpenSprinkler zone
+  description: Run the OpenSprinkler station mapped to a Smart Irrigation zone.
+  fields:
+    zone_id:
+      required: true
+      example: 1
+      description: "Smart Irrigation zone ID"
+      selector:
+        number:
+          min: 0
+          mode: box
+    entity_id:
+      required: false
+      example: "switch.opensprinkler_station_1"
+      description: "Override OpenSprinkler station entity ID; otherwise the configured mapping is used"
+      selector:
+        entity:
+          domain: switch
+    run_seconds:
+      required: false
+      example: 600
+      description: "Override run duration in seconds; otherwise the Smart Irrigation zone duration is used"
+      selector:
+        number:
+          min: 1
+          unit_of_measurement: seconds
+          mode: box
+    queue_option:
+      required: false
+      example: "append"
+      description: "OpenSprinkler queue option"
+      selector:
+        select:
+          options:
+            - "append"
+            - "replace"
+            - "ignore"
+
+run_opensprinkler_zones:
+  name: Run OpenSprinkler zones
+  description: Run all mapped OpenSprinkler stations with positive Smart Irrigation durations.
+  fields:
+    zone_ids:
+      required: false
+      example: [1, 2, 3]
+      description: "Specific Smart Irrigation zone IDs to run; leave empty for all zones"
+      selector:
+        object:
+
+get_opensprinkler_status:
+  name: Get OpenSprinkler status
+  description: Get OpenSprinkler bridge status, mappings, and service availability.
+
+configure_opensprinkler_bridge:
+  name: Configure OpenSprinkler bridge
+  description: Enable and configure the optional bridge to the OpenSprinkler Home Assistant integration.
+  fields:
+    enabled:
+      required: false
+      example: true
+      description: "Enable or disable the OpenSprinkler bridge"
+      selector:
+        boolean:
+    station_map:
+      required: false
+      example:
+        "1": "switch.opensprinkler_station_1"
+        "2": "switch.opensprinkler_station_2"
+      description: "Mapping of Smart Irrigation zone IDs to OpenSprinkler station entity IDs"
+      selector:
+        object:
+    queue_option:
+      required: false
+      example: "append"
+      description: "Default OpenSprinkler queue option"
+      selector:
+        select:
+          options:
+            - "append"
+            - "replace"
+            - "ignore"

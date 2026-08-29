@@ -51,6 +51,7 @@ from .helpers import (
 )
 from .irrigation_unlimited import IrrigationUnlimitedIntegration
 from .observed_watering import ObservedWateringMixin
+from .opensprinkler import OpenSprinklerBridge
 from .panel import async_register_panel, remove_panel
 from .scheduler import RecurringScheduleManager, SeasonalAdjustmentManager
 from .service_handlers import ServiceHandlersMixin
@@ -319,6 +320,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     await coordinator.recurring_schedule_manager.async_load_schedules()
     await coordinator.seasonal_adjustment_manager.async_load_adjustments()
     await coordinator.irrigation_unlimited_integration.async_initialize()
+    await coordinator.opensprinkler_bridge.async_initialize()
 
     await coordinator.update_subscriptions()
 
@@ -535,6 +537,7 @@ class SmartIrrigationCoordinator(
         self.irrigation_unlimited_integration = IrrigationUnlimitedIntegration(
             hass, self
         )
+        self.opensprinkler_bridge = OpenSprinklerBridge(hass, self)
 
         # WIP v2024.6.X:
         # experiment with subscriptions on sensors
@@ -676,6 +679,11 @@ class SmartIrrigationCoordinator(
     async def async_update_config(self, data):  # noqa: D102
         _LOGGER.debug("[async_update_config]: config changed: %s", data)
 
+        if const.CONF_OPENSPRINKLER_STATION_MAP in data:
+            self.opensprinkler_bridge.validate_station_map(
+                data[const.CONF_OPENSPRINKLER_STATION_MAP]
+            )
+
         # Handle precipitation threshold unit conversion
         # Always store internally in mm, but convert from user units if needed
         if const.CONF_PRECIPITATION_THRESHOLD_MM in data:
@@ -711,6 +719,9 @@ class SmartIrrigationCoordinator(
         # Re-evaluate the observed-watering subscription (the feature toggle may
         # have just changed).
         await self.async_setup_observed_watering()
+        await self.opensprinkler_bridge.async_update_configuration(
+            await self.store.async_get_config()
+        )
         async_dispatcher_send(self.hass, const.DOMAIN + "_config_updated")
 
     async def async_apply_weather_service(self, use, service, api_key):
@@ -2112,4 +2123,25 @@ def register_services(hass: HomeAssistant):
         const.DOMAIN,
         const.SERVICE_GET_IU_SCHEDULE_STATUS,
         coordinator.handle_get_iu_schedule_status,
+    )
+
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_RUN_OPENSPRINKLER_ZONE,
+        coordinator.handle_run_opensprinkler_zone,
+    )
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_RUN_OPENSPRINKLER_ZONES,
+        coordinator.handle_run_opensprinkler_zones,
+    )
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_GET_OPENSPRINKLER_STATUS,
+        coordinator.handle_get_opensprinkler_status,
+    )
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_CONFIGURE_OPENSPRINKLER_BRIDGE,
+        coordinator.handle_configure_opensprinkler_bridge,
     )
