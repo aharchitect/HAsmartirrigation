@@ -59,12 +59,12 @@ class SolarRadiationFallbackClient:  # pylint: disable=invalid-name
             )
         return data
 
-    def get_forecast_data(self):
+    def get_forecast_data(self, include_today=False):
         """Forecast from the primary, with radiation/ET0 filled per day from Open-Meteo."""
-        data = self._primary.get_forecast_data()
+        data = self._primary.get_forecast_data(include_today=include_today)
         if not data:
             return data
-        fb = self._fallback.get_forecast_data()
+        fb = self._fallback.get_forecast_data(include_today=include_today)
         if fb:
             for i, day in enumerate(data):
                 if i < len(fb):

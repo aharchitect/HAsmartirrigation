@@ -17,6 +17,12 @@ As calculation needs weatherdata make sure to update your weather data at least 
 ### Automatic duration calculation
 If enabled, set the time of calculation (HH:MM). Calculation uses weatherdata that is collected in updates to determine irrigation duration. After automatic calculation has happened used weatherdata is deleted.
 
+Irrigation usually starts hours after the calculation, and it can rain in between. When the start trigger is reached, each automatic zone's duration is reworked against the rain collected since its calculation, so a night of rain shortens the run or cancels it instead of watering the full calculated amount on wet ground.
+
+The bucket itself is left alone by that. It is a running balance: irrigation credits it by the water actually applied and the next calculation adds the whole interval's rain, so crediting the rain at the start as well would count it twice. A run is only ever shortened this way, never lengthened, and a dry night leaves the calculated duration exactly as it is.
+
+Note that the run still starts at the time it was scheduled for. A trigger set to finish at sunrise works back from the duration known at calculation time, so a run shortened by rain finishes early rather than starting late.
+
 ### Automatic weather data pruning
 If enabled configure time of pruning weather data. Use this to make sure that there is no left over weatherdata from previous days. Don't remove the weatherdata before you calculate and only use this option if you expect the automatic update to collect weatherdata after you calculated for the day. Ideally, you want to prune as late in the day as possible.
 
@@ -32,12 +38,14 @@ Configure the minimum number of days that must pass between irrigation events. T
 * When set to 0: Irrigation events can fire daily if conditions are met (default behavior)
 * When set to a value > 0: Irrigation events will only fire if the specified number of days have passed since the last irrigation event
 
-**Example scenarios:**
-* Set to 1: Allow irrigation every other day maximum
-* Set to 3: Allow irrigation only every 3 days minimum  
-* Set to 7: Weekly irrigation maximum
+The value is the length of the watering cycle in calendar days: set to *N*, irrigation happens every *N* days.
 
-The system automatically tracks the number of days since the last irrigation event. If an irrigation trigger occurs but insufficient days have passed, the event is skipped and the days counter continues to increment. When enough days have passed, the next trigger will fire the irrigation event and reset the counter.
+**Example scenarios:**
+* Set to 1: Allow irrigation every day (one calendar day between events)
+* Set to 3: Allow irrigation every 3 days
+* Set to 7: Weekly irrigation
+
+The system automatically tracks the number of days since the last irrigation event. The counter is incremented once per calendar day, at midnight, whether or not irrigation happened that day. If an irrigation trigger occurs but insufficient days have passed, the event is skipped and the counter simply keeps running. When enough days have passed, the next trigger will fire the irrigation event and reset the counter to 0.
 
 This feature works alongside existing precipitation forecasting - if both restrictions apply, both must be satisfied for irrigation to occur.
 

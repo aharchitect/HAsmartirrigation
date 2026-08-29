@@ -1,6 +1,6 @@
 """Store constants."""
 
-VERSION = "v2026.7.0-beta0"
+VERSION = "v2026.9.0"
 NAME = "Smart Irrigation"
 MANUFACTURER = "@altmenorg"
 
@@ -37,12 +37,46 @@ START_EVENT_FIRED_TODAY = "starteventfiredtoday"
 # Irrigation start trigger configuration
 CONF_IRRIGATION_START_TRIGGERS = "irrigation_start_triggers"
 CONF_DEFAULT_IRRIGATION_START_TRIGGERS = []
+# Which single configured trigger actually starts irrigation. The defined
+# triggers are just the pool of options; this picks the active one. The
+# sentinel "default" means a sunrise trigger offset by the total watering
+# duration, so the run finishes right at sunrise.
+START_TRIGGER_DEFAULT = "default"
+CONF_ACTIVE_START_TRIGGER = "active_start_trigger"
+CONF_DEFAULT_ACTIVE_START_TRIGGER = START_TRIGGER_DEFAULT
 
 # Weather-based skip configuration
 CONF_SKIP_IRRIGATION_ON_PRECIPITATION = "skip_irrigation_on_precipitation"
 CONF_DEFAULT_SKIP_IRRIGATION_ON_PRECIPITATION = False
 CONF_PRECIPITATION_THRESHOLD_MM = "precipitation_threshold_mm"
 CONF_DEFAULT_PRECIPITATION_THRESHOLD_MM = 2.0  # 2mm threshold
+
+# Observed watering (closed-loop bucket): credit the bucket from a linked
+# valve/switch entity's real run time instead of a manual reset automation.
+CONF_OBSERVED_WATERING_ENABLED = "observed_watering_enabled"
+CONF_DEFAULT_OBSERVED_WATERING_ENABLED = False
+
+# Direct valve control: Smart Irrigation opens each zone's linked valve, waits
+# the calculated duration, then closes it (optional executor). The start event
+# still fires for external executors. Crediting is handled by the runner, and
+# in-flight runs are persisted so a reboot mid-run can resume and credit.
+CONF_DIRECT_VALVE_CONTROL_ENABLED = "direct_valve_control_enabled"
+CONF_DEFAULT_DIRECT_VALVE_CONTROL_ENABLED = False
+CONF_ZONE_SEQUENCING = "zone_sequencing"
+CONF_ZONE_SEQUENCING_SEQUENTIAL = "sequential"
+CONF_ZONE_SEQUENCING_PARALLEL = "parallel"
+CONF_ZONE_SEQUENCING_OPTIONS = [
+    CONF_ZONE_SEQUENCING_SEQUENTIAL,
+    CONF_ZONE_SEQUENCING_PARALLEL,
+]
+CONF_DEFAULT_ZONE_SEQUENCING = CONF_ZONE_SEQUENCING_SEQUENTIAL
+# Persisted list of in-flight direct-control runs (reboot resilience).
+CONF_ACTIVE_VALVE_RUNS = "active_valve_runs"
+# Keys inside an active-run record.
+RUN_ZONE_ID = "zone_id"
+RUN_ENTITY_ID = "entity_id"
+RUN_STARTED = "started"
+RUN_DURATION = "duration"
 
 # Days between irrigation configuration
 CONF_DAYS_BETWEEN_IRRIGATION = "days_between_irrigation"
@@ -96,17 +130,36 @@ SEASONAL_CONF_ZONES = "zones"  # List of zone IDs or "all"
 CONF_IRRIGATION_UNLIMITED_INTEGRATION = "irrigation_unlimited_integration"
 CONF_DEFAULT_IRRIGATION_UNLIMITED_INTEGRATION = False
 CONF_IU_ENTITY_PREFIX = "iu_entity_prefix"
-CONF_DEFAULT_IU_ENTITY_PREFIX = "switch.irrigation_unlimited"
+CONF_DEFAULT_IU_ENTITY_PREFIX = "binary_sensor.irrigation_unlimited"
 CONF_IU_SYNC_SCHEDULES = "iu_sync_schedules"
 CONF_DEFAULT_IU_SYNC_SCHEDULES = False
 CONF_IU_SHARE_ZONE_DATA = "iu_share_zone_data"
 CONF_DEFAULT_IU_SHARE_ZONE_DATA = False
 
+# OpenSprinkler Bridge
+CONF_OPENSPRINKLER_INTEGRATION = "opensprinkler_integration"
+CONF_DEFAULT_OPENSPRINKLER_INTEGRATION = False
+CONF_OPENSPRINKLER_STATION_MAP = "opensprinkler_station_map"
+CONF_DEFAULT_OPENSPRINKLER_STATION_MAP = {}
+CONF_OPENSPRINKLER_QUEUE_OPTION = "opensprinkler_queue_option"
+CONF_DEFAULT_OPENSPRINKLER_QUEUE_OPTION = "append"
+OPENSPRINKLER_DOMAIN = "opensprinkler"
+OPENSPRINKLER_SERVICE_RUN_STATION = "run_station"
+OPENSPRINKLER_SERVICE_STOP = "stop"
+
 # Trigger types
 TRIGGER_TYPE_SUNRISE = "sunrise"
 TRIGGER_TYPE_SUNSET = "sunset"
 TRIGGER_TYPE_SOLAR_AZIMUTH = "solar_azimuth"
-TRIGGER_TYPES = [TRIGGER_TYPE_SUNRISE, TRIGGER_TYPE_SUNSET, TRIGGER_TYPE_SOLAR_AZIMUTH]
+# A clock time rather than a solar event, for people who want irrigation to
+# finish (or start) at the same time every day whatever the season.
+TRIGGER_TYPE_TIME = "time"
+TRIGGER_TYPES = [
+    TRIGGER_TYPE_SUNRISE,
+    TRIGGER_TYPE_SUNSET,
+    TRIGGER_TYPE_SOLAR_AZIMUTH,
+    TRIGGER_TYPE_TIME,
+]
 
 # Trigger configuration keys
 TRIGGER_CONF_TYPE = "type"
@@ -115,6 +168,9 @@ TRIGGER_CONF_AZIMUTH_ANGLE = "azimuth_angle"
 TRIGGER_CONF_ENABLED = "enabled"
 TRIGGER_CONF_NAME = "name"
 TRIGGER_CONF_ACCOUNT_FOR_DURATION = "account_for_duration"
+# Clock time "HH:MM" for a time trigger.
+TRIGGER_CONF_AT = "at"
+TRIGGER_CONF_DEFAULT_AT = "06:00"
 
 CONF_WEATHER_SERVICE = "weather_service"
 CONF_WEATHER_SERVICE_API_KEY = "weather_service_api_key"
@@ -251,6 +307,10 @@ ZONE_STATES = [ZONE_STATE_DISABLED, ZONE_STATE_MANUAL, ZONE_STATE_AUTOMATIC]
 ZONE_MODULE = "module"
 ZONE_BUCKET = "bucket"
 ZONE_DELTA = "delta"
+# Raw daily ET deficiency returned by the module, before interval scaling
+# (hour_multiplier) and precipitation. Independent of the bucket and of bucket
+# resets, so it is the value to watch when comparing sensor groups (issue #576).
+ZONE_ET_DEFICIENCY = "et_deficiency"
 ZONE_EXPLANATION = "explanation"
 ZONE_MULTIPLIER = "multiplier"
 ZONE_THROUGHPUT = "throughput"
@@ -263,6 +323,21 @@ ZONE_LAST_UPDATED = "last_updated"
 ZONE_NUMBER_OF_DATA_POINTS = "number_of_data_points"
 ZONE_DRAINAGE_RATE = "drainage_rate"
 ZONE_CURRENT_DRAINAGE = "current_drainage"
+# Timestamp of the last credited irrigation run, and cumulative water delivered
+# (litres). Both set when a run credits the bucket (direct or observed).
+ZONE_LAST_IRRIGATION = "last_irrigation"
+ZONE_WATER_USED = "water_used"
+# Rain already accounted for by an asserted bucket value, subtracted at the next
+# calculation so it is not credited twice (#811).
+ZONE_PRECIPITATION_SUPERSEDED = "precipitation_superseded"
+# Depth of soil moisture deficit to let build up before watering, in mm or inch
+# (the management allowed depletion). 0 waters as soon as anything is missing.
+ZONE_IRRIGATION_THRESHOLD = "irrigation_threshold"
+CONF_DEFAULT_IRRIGATION_THRESHOLD = 0.0
+# Optional valve/switch entity observed to credit the bucket (closed-loop).
+ZONE_LINKED_ENTITY = "linked_entity"
+# Optional cumulative volume/flow meter; credits the bucket by measured volume.
+ZONE_FLOW_SENSOR = "flow_sensor"
 
 MODULE_DIR = "calcmodules"
 MODULE_ID = "id"
@@ -290,6 +365,9 @@ MAPPING_MAX_TEMP = "Maximum Temperature"
 MAPPING_MIN_TEMP = "Minimum Temperature"
 MAPPING_PRECIPITATION = "Precipitation"
 MAPPING_CURRENT_PRECIPITATION = "Current Precipitation"
+# How many samples of the precipitation rate went into an aggregate. Each one
+# reports the last hour, so it also says how many hours were actually observed.
+MAPPING_CURRENT_PRECIPITATION_SAMPLES = "current_precipitation_samples"
 MAPPING_PRESSURE = "Pressure"
 MAPPING_SOLRAD = "Solar Radiation"
 MAPPING_TEMPERATURE = "Temperature"
@@ -335,6 +413,16 @@ MAPPING_CONF_AGGREGATE_OPTIONS = [
 RETRIEVED_AT = "retrieved"  # on weatherdata
 
 EVENT_IRRIGATE_START = "start_irrigation_all_zones"
+# Fired (as smart_irrigation_irrigation_started) when direct valve control
+# begins running the zones, with the list about to be watered.
+EVENT_IRRIGATE_STARTED = "irrigation_started"
+# Fired (as smart_irrigation_irrigation_finished) once direct valve control has
+# finished running every eligible zone, with a per-zone summary, so a single
+# automation can send an end-of-watering report.
+EVENT_IRRIGATE_FINISHED = "irrigation_finished"
+# Fired (as smart_irrigation_zone_problem) when a direct-control valve fails to
+# open, so users can wire a notification automation.
+EVENT_ZONE_PROBLEM = "zone_problem"
 
 UNIT_M2 = "m<sup>2</sup>"
 UNIT_SQ_FT = "sq ft"
@@ -352,6 +440,7 @@ UNIT_INHG = "inch Hg"
 UNIT_KMH = "km/h"
 UNIT_MH = "mile/h"
 UNIT_MS = "meter/s"
+UNIT_KNOTS = "knot"
 UNIT_W_M2 = "W/m2"
 UNIT_W_SQFT = "W/sq ft"
 UNIT_MJ_DAY_M2 = "MJ/day/m2"
@@ -383,6 +472,7 @@ W_SQ_FT_TO_W_M2_FACTOR = 10.76391042  # w/sqft * factor = w/m2
 # OTHER FACTORS
 KMH_TO_MS_FACTOR = 0.277777777777778  # kmh * factor = ms
 MS_TO_KMH_FACTOR = 3.6  # m/s * factor = kmh
+KNOTS_TO_MS_FACTOR = 0.5144444444444445  # knot * factor = m/s (1852 m per hour)
 W_TO_MJ_DAY_FACTOR = 0.0864  # w * factor = mj/day, same for w/m2 to mj/day/m2
 K_TO_C_FACTOR = 273.15  # K-factor = C, C+factor=K
 INHG_TO_PSI_FACTOR = 0.49115420057253  # inhg * factor = PSI
@@ -414,8 +504,13 @@ SERVICE_DELETE_SEASONAL_ADJUSTMENT = "delete_seasonal_adjustment"
 SERVICE_SYNC_WITH_IRRIGATION_UNLIMITED = "sync_with_irrigation_unlimited"
 SERVICE_SEND_ZONE_DATA_TO_IU = "send_zone_data_to_irrigation_unlimited"
 SERVICE_GET_IU_SCHEDULE_STATUS = "get_irrigation_unlimited_status"
+SERVICE_RUN_OPENSPRINKLER_ZONE = "run_opensprinkler_zone"
+SERVICE_RUN_OPENSPRINKLER_ZONES = "run_opensprinkler_zones"
+SERVICE_GET_OPENSPRINKLER_STATUS = "get_opensprinkler_status"
+SERVICE_CONFIGURE_OPENSPRINKLER_BRIDGE = "configure_opensprinkler_bridge"
 
 # Events
 EVENT_RECURRING_SCHEDULE_TRIGGERED = "recurring_schedule_triggered"
 EVENT_SEASONAL_ADJUSTMENT_APPLIED = "seasonal_adjustment_applied"
 EVENT_IU_SYNC_COMPLETED = "irrigation_unlimited_sync_completed"
+EVENT_OPENSPRINKLER_RUN_COMPLETED = "opensprinkler_run_completed"

@@ -33,6 +33,7 @@ export class SmartIrrigationConfig {
   continuousupdates: boolean;
   sensor_debounce: number;
   irrigation_start_triggers: IrrigationStartTrigger[];
+  active_start_trigger: string;
   skip_irrigation_on_precipitation: boolean;
   precipitation_threshold_mm: number;
   manual_coordinates_enabled: boolean;
@@ -40,6 +41,11 @@ export class SmartIrrigationConfig {
   manual_longitude?: number;
   manual_elevation?: number;
   days_between_irrigation: number;
+  observed_watering_enabled: boolean;
+  direct_valve_control_enabled: boolean;
+  zone_sequencing: string;
+  opensprinkler_integration: boolean;
+  opensprinkler_station_map: Record<string, string>;
 
   constructor() {
     this.calctime = "23:00";
@@ -57,6 +63,7 @@ export class SmartIrrigationConfig {
     this.continuousupdates = false;
     this.sensor_debounce = 100;
     this.irrigation_start_triggers = [];
+    this.active_start_trigger = "default";
     this.skip_irrigation_on_precipitation = false;
     this.precipitation_threshold_mm = 2.0;
     this.manual_coordinates_enabled = false;
@@ -64,6 +71,11 @@ export class SmartIrrigationConfig {
     this.manual_longitude = undefined;
     this.manual_elevation = undefined;
     this.days_between_irrigation = 0;
+    this.observed_watering_enabled = false;
+    this.direct_valve_control_enabled = false;
+    this.zone_sequencing = "sequential";
+    this.opensprinkler_integration = false;
+    this.opensprinkler_station_map = {};
   }
 }
 
@@ -73,6 +85,7 @@ export interface IrrigationStartTrigger {
   enabled: boolean;
   offset_minutes: number;
   azimuth_angle?: number;
+  at?: string;
   account_for_duration: boolean;
 }
 
@@ -80,6 +93,7 @@ export enum TriggerType {
   Sunrise = "sunrise",
   Sunset = "sunset",
   SolarAzimuth = "solar_azimuth",
+  Time = "time",
 }
 
 export enum SmartIrrigationZoneState {
@@ -99,17 +113,21 @@ export class SmartIrrigationZone {
   module?: number;
   bucket: number;
   delta: number;
+  et_deficiency: number;
   explanation: string;
   multiplier: number;
   mapping?: number;
   lead_time: number;
   maximum_duration?: number;
   maximum_bucket?: number;
+  irrigation_threshold?: number;
   last_calculated?: Date;
   last_updated?: Date;
   number_of_data_points?: number;
   drainage_rate?: number;
   current_drainage?: number;
+  linked_entity?: string;
+  flow_sensor?: string;
 
   constructor(
     i: number,
@@ -128,12 +146,14 @@ export class SmartIrrigationZone {
     this.module = undefined;
     this.bucket = 0;
     this.delta = 0;
+    this.et_deficiency = 0;
     this.explanation = "";
     this.multiplier = 1.0;
     this.mapping = undefined;
     this.lead_time = 0;
     this.maximum_duration = 3600; //default maximum duration to one hour = 3600 seconds
     this.maximum_bucket = 50; //default maximum bucket size to 50 mm
+    this.irrigation_threshold = 0; //water as soon as anything is missing
     this.last_calculated = undefined;
     this.drainage_rate = 50.8; //default mm / hour (=2 inch per hour)
     this.current_drainage = 0;
