@@ -34,6 +34,7 @@ import {
   clearAllWeatherdata,
   fetchWateringCalendar,
   fetchMappingWeatherRecords,
+  saveConfig,
 } from "../../data/websockets";
 import { SubscribeMixin } from "../../subscribe-mixin";
 
@@ -50,6 +51,8 @@ import { globalStyle } from "../../styles/global-style";
 import { localize } from "../../../localize/localize";
 import {
   DOMAIN,
+  CONF_OPENSPRINKLER_INTEGRATION,
+  CONF_OPENSPRINKLER_STATION_MAP,
   UNIT_SECONDS,
   ZONE_BUCKET,
   ZONE_DRAINAGE_RATE,
@@ -86,6 +89,9 @@ class SmartIrrigationViewZones extends SubscribeMixin(LitElement) {
 
   @property({ type: Map })
   private weatherRecords = new Map<number, WeatherRecord[]>();
+
+  @property({ type: Object })
+  private opensprinklerStations: Record<string, string> = {};
 
   @property({ type: Boolean })
   private isLoading = true;
@@ -212,6 +218,7 @@ class SmartIrrigationViewZones extends SubscribeMixin(LitElement) {
       this.zones = zones;
       this.modules = modules;
       this.mappings = mappings;
+      await this._fetchOpenSprinklerStations(config);
 
       // Fetch watering calendars for each zone
       this._fetchWateringCalendars();
@@ -549,6 +556,72 @@ class SmartIrrigationViewZones extends SubscribeMixin(LitElement) {
       }
     }
     this._scheduleUpdate();
+  }
+
+  private async _fetchOpenSprinklerStations(
+    config: SmartIrrigationConfig,
+  ): Promise<void> {
+    if (!this.hass || !config[CONF_OPENSPRINKLER_INTEGRATION]) {
+      this.opensprinklerStations = {};
+      return;
+    }
+    const [devices, entities] = await Promise.all([
+      this.hass.callWS<any[]>({ type: "config/device_registry/list" }),
+      this.hass.callWS<any[]>({ type: "config/entity_registry/list" }),
+    ]);
+    const deviceIds = new Set(
+      devices
+        .filter((device) =>
+          [device.name, device.name_by_user, device.manufacturer]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes("opensprinkler")),
+        )
+        .map((device) => device.id),
+    );
+    this.opensprinklerStations = Object.fromEntries(
+      entities
+        .filter(
+          (entity) =>
+            deviceIds.has(entity.device_id) &&
+            entity.entity_id?.startsWith("switch.") &&
+            this.hass?.states[entity.entity_id]?.attributes?.opensprinkler_type ===
+              "station",
+        )
+        .map((entity) => [
+          entity.entity_id,
+          this.hass?.states[entity.entity_id]?.attributes?.friendly_name ??
+            entity.name ??
+            entity.entity_id,
+        ]),
+    );
+  }
+
+  private renderOpenSprinklerStationMapping(zone: SmartIrrigationZone): TemplateResult {
+    if (!this.config?.[CONF_OPENSPRINKLER_INTEGRATION] || zone.id === undefined) {
+      return html``;
+    }
+    const selected = this.config[CONF_OPENSPRINKLER_STATION_MAP]?.[String(zone.id)];
+    return html`
+      <div class="setting-row">
+        <div class="setting-label">OpenSprinkler station</div>
+        <select class="field" @change=${async (event: Event) => {
+          const value = (event.target as HTMLSelectElement).value;
+          // Persist as opensprinkler_station_map: zone ID -> station entity ID.
+          const stationMap = { ...(this.config?.[CONF_OPENSPRINKLER_STATION_MAP] ?? {}) };
+          if (value) stationMap[String(zone.id)] = value;
+          else delete stationMap[String(zone.id)];
+          await saveConfig(this.hass!, { [CONF_OPENSPRINKLER_STATION_MAP]: stationMap });
+          this.config = { ...this.config!, [CONF_OPENSPRINKLER_STATION_MAP]: stationMap };
+        }}>
+          <option value="">---</option>
+          ${Object.entries(this.opensprinklerStations).map(([entityId, name]) => {
+            const mappedToAnotherZone = Object.entries(
+              this.config?.[CONF_OPENSPRINKLER_STATION_MAP] ?? {},
+            ).some(([zoneId, mapped]) => zoneId !== String(zone.id) && mapped === entityId);
+            return html`<option value=${entityId} ?selected=${selected === entityId} ?disabled=${mappedToAnotherZone}>${name}</option>`;
+          })}
+        </select>
+      </div>`;
   }
 
   private renderWeatherRecords(zone: SmartIrrigationZone): TemplateResult {
@@ -972,6 +1045,7 @@ class SmartIrrigationViewZones extends SubscribeMixin(LitElement) {
                     });
                   },
                 )}
+                ${this.renderOpenSprinklerStationMapping(zone)}
                 ${this._numRow(
                   localize("panels.zones.labels.bucket", lang),
                   output_unit(this.config, ZONE_BUCKET),
