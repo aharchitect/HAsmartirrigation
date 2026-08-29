@@ -15,13 +15,13 @@ const o=window,l=o.ShadowRoot&&(void 0===o.ShadyCSS||o.ShadyCSS.nativeShadow)&&"
      * Copyright 2017 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
      */
-var x;w[z]=!0,w.elementProperties=new Map,w.elementStyles=[],w.shadowRootOptions={mode:"open"},null==b||b({ReactiveElement:w}),(null!==(g=h.reactiveElementVersions)&&void 0!==g?g:h.reactiveElementVersions=[]).push("1.6.3");const j=window,S=j.trustedTypes,A=S?S.createPolicy("lit-html",{createHTML:e=>e}):void 0,$="$lit$",E=`lit$${(Math.random()+"").slice(9)}$`,T="?"+E,M=`<${T}>`,D=document,O=()=>D.createComment(""),N=e=>null===e||"object"!=typeof e&&"function"!=typeof e,P=Array.isArray,C="[ \t\n\f\r]",H=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,I=/-->/g,L=/>/g,B=RegExp(`>|${C}(?:([^\\s"'>=/]+)(${C}*=${C}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),U=/'/g,R=/"/g,V=/^(?:script|style|textarea|title)$/i,q=(e=>(a,...t)=>({_$litType$:e,strings:a,values:t}))(1),F=Symbol.for("lit-noChange"),W=Symbol.for("lit-nothing"),G=new WeakMap,Y=D.createTreeWalker(D,129,null,!1);function Z(e,a){if(!Array.isArray(e)||!e.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==A?A.createHTML(a):a}const K=(e,a)=>{const t=e.length-1,i=[];let n,r=2===a?"<svg>":"",s=H;for(let a=0;a<t;a++){const t=e[a];let o,l,d=-1,u=0;for(;u<t.length&&(s.lastIndex=u,l=s.exec(t),null!==l);)u=s.lastIndex,s===H?"!--"===l[1]?s=I:void 0!==l[1]?s=L:void 0!==l[2]?(V.test(l[2])&&(n=RegExp("</"+l[2],"g")),s=B):void 0!==l[3]&&(s=B):s===B?">"===l[0]?(s=null!=n?n:H,d=-1):void 0===l[1]?d=-2:(d=s.lastIndex-l[2].length,o=l[1],s=void 0===l[3]?B:'"'===l[3]?R:U):s===R||s===U?s=B:s===I||s===L?s=H:(s=B,n=void 0);const c=s===B&&e[a+1].startsWith("/>")?" ":"";r+=s===H?t+M:d>=0?(i.push(o),t.slice(0,d)+$+t.slice(d)+E+c):t+E+(-2===d?(i.push(void 0),a):c)}return[Z(e,r+(e[t]||"<?>")+(2===a?"</svg>":"")),i]};class J{constructor({strings:e,_$litType$:a},t){let i;this.parts=[];let n=0,r=0;const s=e.length-1,o=this.parts,[l,d]=K(e,a);if(this.el=J.createElement(l,t),Y.currentNode=this.el.content,2===a){const e=this.el.content,a=e.firstChild;a.remove(),e.append(...a.childNodes)}for(;null!==(i=Y.nextNode())&&o.length<s;){if(1===i.nodeType){if(i.hasAttributes()){const e=[];for(const a of i.getAttributeNames())if(a.endsWith($)||a.startsWith(E)){const t=d[r++];if(e.push(a),void 0!==t){const e=i.getAttribute(t.toLowerCase()+$).split(E),a=/([.?@])?(.*)/.exec(t);o.push({type:1,index:n,name:a[2],strings:e,ctor:"."===a[1]?te:"?"===a[1]?ne:"@"===a[1]?re:ae})}else o.push({type:6,index:n})}for(const a of e)i.removeAttribute(a)}if(V.test(i.tagName)){const e=i.textContent.split(E),a=e.length-1;if(a>0){i.textContent=S?S.emptyScript:"";for(let t=0;t<a;t++)i.append(e[t],O()),Y.nextNode(),o.push({type:2,index:++n});i.append(e[a],O())}}}else if(8===i.nodeType)if(i.data===T)o.push({type:2,index:n});else{let e=-1;for(;-1!==(e=i.data.indexOf(E,e+1));)o.push({type:7,index:n}),e+=E.length-1}n++}}static createElement(e,a){const t=D.createElement("template");return t.innerHTML=e,t}}function Q(e,a,t=e,i){var n,r,s,o;if(a===F)return a;let l=void 0!==i?null===(n=t._$Co)||void 0===n?void 0:n[i]:t._$Cl;const d=N(a)?void 0:a._$litDirective$;return(null==l?void 0:l.constructor)!==d&&(null===(r=null==l?void 0:l._$AO)||void 0===r||r.call(l,!1),void 0===d?l=void 0:(l=new d(e),l._$AT(e,t,i)),void 0!==i?(null!==(s=(o=t)._$Co)&&void 0!==s?s:o._$Co=[])[i]=l:t._$Cl=l),void 0!==l&&(a=Q(e,l._$AS(e,a.values),l,i)),a}class X{constructor(e,a){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=a}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){var a;const{el:{content:t},parts:i}=this._$AD,n=(null!==(a=null==e?void 0:e.creationScope)&&void 0!==a?a:D).importNode(t,!0);Y.currentNode=n;let r=Y.nextNode(),s=0,o=0,l=i[0];for(;void 0!==l;){if(s===l.index){let a;2===l.type?a=new ee(r,r.nextSibling,this,e):1===l.type?a=new l.ctor(r,l.name,l.strings,this,e):6===l.type&&(a=new se(r,this,e)),this._$AV.push(a),l=i[++o]}s!==(null==l?void 0:l.index)&&(r=Y.nextNode(),s++)}return Y.currentNode=D,n}v(e){let a=0;for(const t of this._$AV)void 0!==t&&(void 0!==t.strings?(t._$AI(e,t,a),a+=t.strings.length-2):t._$AI(e[a])),a++}}class ee{constructor(e,a,t,i){var n;this.type=2,this._$AH=W,this._$AN=void 0,this._$AA=e,this._$AB=a,this._$AM=t,this.options=i,this._$Cp=null===(n=null==i?void 0:i.isConnected)||void 0===n||n}get _$AU(){var e,a;return null!==(a=null===(e=this._$AM)||void 0===e?void 0:e._$AU)&&void 0!==a?a:this._$Cp}get parentNode(){let e=this._$AA.parentNode;const a=this._$AM;return void 0!==a&&11===(null==e?void 0:e.nodeType)&&(e=a.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,a=this){e=Q(this,e,a),N(e)?e===W||null==e||""===e?(this._$AH!==W&&this._$AR(),this._$AH=W):e!==this._$AH&&e!==F&&this._(e):void 0!==e._$litType$?this.g(e):void 0!==e.nodeType?this.$(e):(e=>P(e)||"function"==typeof(null==e?void 0:e[Symbol.iterator]))(e)?this.T(e):this._(e)}k(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}$(e){this._$AH!==e&&(this._$AR(),this._$AH=this.k(e))}_(e){this._$AH!==W&&N(this._$AH)?this._$AA.nextSibling.data=e:this.$(D.createTextNode(e)),this._$AH=e}g(e){var a;const{values:t,_$litType$:i}=e,n="number"==typeof i?this._$AC(e):(void 0===i.el&&(i.el=J.createElement(Z(i.h,i.h[0]),this.options)),i);if((null===(a=this._$AH)||void 0===a?void 0:a._$AD)===n)this._$AH.v(t);else{const e=new X(n,this),a=e.u(this.options);e.v(t),this.$(a),this._$AH=e}}_$AC(e){let a=G.get(e.strings);return void 0===a&&G.set(e.strings,a=new J(e)),a}T(e){P(this._$AH)||(this._$AH=[],this._$AR());const a=this._$AH;let t,i=0;for(const n of e)i===a.length?a.push(t=new ee(this.k(O()),this.k(O()),this,this.options)):t=a[i],t._$AI(n),i++;i<a.length&&(this._$AR(t&&t._$AB.nextSibling,i),a.length=i)}_$AR(e=this._$AA.nextSibling,a){var t;for(null===(t=this._$AP)||void 0===t||t.call(this,!1,!0,a);e&&e!==this._$AB;){const a=e.nextSibling;e.remove(),e=a}}setConnected(e){var a;void 0===this._$AM&&(this._$Cp=e,null===(a=this._$AP)||void 0===a||a.call(this,e))}}class ae{constructor(e,a,t,i,n){this.type=1,this._$AH=W,this._$AN=void 0,this.element=e,this.name=a,this._$AM=i,this.options=n,t.length>2||""!==t[0]||""!==t[1]?(this._$AH=Array(t.length-1).fill(new String),this.strings=t):this._$AH=W}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(e,a=this,t,i){const n=this.strings;let r=!1;if(void 0===n)e=Q(this,e,a,0),r=!N(e)||e!==this._$AH&&e!==F,r&&(this._$AH=e);else{const i=e;let s,o;for(e=n[0],s=0;s<n.length-1;s++)o=Q(this,i[t+s],a,s),o===F&&(o=this._$AH[s]),r||(r=!N(o)||o!==this._$AH[s]),o===W?e=W:e!==W&&(e+=(null!=o?o:"")+n[s+1]),this._$AH[s]=o}r&&!i&&this.j(e)}j(e){e===W?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=e?e:"")}}class te extends ae{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===W?void 0:e}}const ie=S?S.emptyScript:"";class ne extends ae{constructor(){super(...arguments),this.type=4}j(e){e&&e!==W?this.element.setAttribute(this.name,ie):this.element.removeAttribute(this.name)}}class re extends ae{constructor(e,a,t,i,n){super(e,a,t,i,n),this.type=5}_$AI(e,a=this){var t;if((e=null!==(t=Q(this,e,a,0))&&void 0!==t?t:W)===F)return;const i=this._$AH,n=e===W&&i!==W||e.capture!==i.capture||e.once!==i.once||e.passive!==i.passive,r=e!==W&&(i===W||n);n&&this.element.removeEventListener(this.name,this,i),r&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){var a,t;"function"==typeof this._$AH?this._$AH.call(null!==(t=null===(a=this.options)||void 0===a?void 0:a.host)&&void 0!==t?t:this.element,e):this._$AH.handleEvent(e)}}class se{constructor(e,a,t){this.element=e,this.type=6,this._$AN=void 0,this._$AM=a,this.options=t}get _$AU(){return this._$AM._$AU}_$AI(e){Q(this,e)}}const oe={I:ee},le=j.litHtmlPolyfillSupport;null==le||le(J,ee),(null!==(x=j.litHtmlVersions)&&void 0!==x?x:j.litHtmlVersions=[]).push("2.8.0");
+var x;w[z]=!0,w.elementProperties=new Map,w.elementStyles=[],w.shadowRootOptions={mode:"open"},null==b||b({ReactiveElement:w}),(null!==(g=h.reactiveElementVersions)&&void 0!==g?g:h.reactiveElementVersions=[]).push("1.6.3");const S=window,j=S.trustedTypes,A=j?j.createPolicy("lit-html",{createHTML:e=>e}):void 0,$="$lit$",E=`lit$${(Math.random()+"").slice(9)}$`,T="?"+E,M=`<${T}>`,D=document,O=()=>D.createComment(""),N=e=>null===e||"object"!=typeof e&&"function"!=typeof e,P=Array.isArray,C="[ \t\n\f\r]",H=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,I=/-->/g,L=/>/g,B=RegExp(`>|${C}(?:([^\\s"'>=/]+)(${C}*=${C}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),U=/'/g,R=/"/g,V=/^(?:script|style|textarea|title)$/i,F=(e=>(a,...t)=>({_$litType$:e,strings:a,values:t}))(1),W=Symbol.for("lit-noChange"),q=Symbol.for("lit-nothing"),Y=new WeakMap,G=D.createTreeWalker(D,129,null,!1);function Z(e,a){if(!Array.isArray(e)||!e.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==A?A.createHTML(a):a}const K=(e,a)=>{const t=e.length-1,i=[];let n,r=2===a?"<svg>":"",s=H;for(let a=0;a<t;a++){const t=e[a];let o,l,d=-1,u=0;for(;u<t.length&&(s.lastIndex=u,l=s.exec(t),null!==l);)u=s.lastIndex,s===H?"!--"===l[1]?s=I:void 0!==l[1]?s=L:void 0!==l[2]?(V.test(l[2])&&(n=RegExp("</"+l[2],"g")),s=B):void 0!==l[3]&&(s=B):s===B?">"===l[0]?(s=null!=n?n:H,d=-1):void 0===l[1]?d=-2:(d=s.lastIndex-l[2].length,o=l[1],s=void 0===l[3]?B:'"'===l[3]?R:U):s===R||s===U?s=B:s===I||s===L?s=H:(s=B,n=void 0);const c=s===B&&e[a+1].startsWith("/>")?" ":"";r+=s===H?t+M:d>=0?(i.push(o),t.slice(0,d)+$+t.slice(d)+E+c):t+E+(-2===d?(i.push(void 0),a):c)}return[Z(e,r+(e[t]||"<?>")+(2===a?"</svg>":"")),i]};class J{constructor({strings:e,_$litType$:a},t){let i;this.parts=[];let n=0,r=0;const s=e.length-1,o=this.parts,[l,d]=K(e,a);if(this.el=J.createElement(l,t),G.currentNode=this.el.content,2===a){const e=this.el.content,a=e.firstChild;a.remove(),e.append(...a.childNodes)}for(;null!==(i=G.nextNode())&&o.length<s;){if(1===i.nodeType){if(i.hasAttributes()){const e=[];for(const a of i.getAttributeNames())if(a.endsWith($)||a.startsWith(E)){const t=d[r++];if(e.push(a),void 0!==t){const e=i.getAttribute(t.toLowerCase()+$).split(E),a=/([.?@])?(.*)/.exec(t);o.push({type:1,index:n,name:a[2],strings:e,ctor:"."===a[1]?te:"?"===a[1]?ne:"@"===a[1]?re:ae})}else o.push({type:6,index:n})}for(const a of e)i.removeAttribute(a)}if(V.test(i.tagName)){const e=i.textContent.split(E),a=e.length-1;if(a>0){i.textContent=j?j.emptyScript:"";for(let t=0;t<a;t++)i.append(e[t],O()),G.nextNode(),o.push({type:2,index:++n});i.append(e[a],O())}}}else if(8===i.nodeType)if(i.data===T)o.push({type:2,index:n});else{let e=-1;for(;-1!==(e=i.data.indexOf(E,e+1));)o.push({type:7,index:n}),e+=E.length-1}n++}}static createElement(e,a){const t=D.createElement("template");return t.innerHTML=e,t}}function Q(e,a,t=e,i){var n,r,s,o;if(a===W)return a;let l=void 0!==i?null===(n=t._$Co)||void 0===n?void 0:n[i]:t._$Cl;const d=N(a)?void 0:a._$litDirective$;return(null==l?void 0:l.constructor)!==d&&(null===(r=null==l?void 0:l._$AO)||void 0===r||r.call(l,!1),void 0===d?l=void 0:(l=new d(e),l._$AT(e,t,i)),void 0!==i?(null!==(s=(o=t)._$Co)&&void 0!==s?s:o._$Co=[])[i]=l:t._$Cl=l),void 0!==l&&(a=Q(e,l._$AS(e,a.values),l,i)),a}class X{constructor(e,a){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=a}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){var a;const{el:{content:t},parts:i}=this._$AD,n=(null!==(a=null==e?void 0:e.creationScope)&&void 0!==a?a:D).importNode(t,!0);G.currentNode=n;let r=G.nextNode(),s=0,o=0,l=i[0];for(;void 0!==l;){if(s===l.index){let a;2===l.type?a=new ee(r,r.nextSibling,this,e):1===l.type?a=new l.ctor(r,l.name,l.strings,this,e):6===l.type&&(a=new se(r,this,e)),this._$AV.push(a),l=i[++o]}s!==(null==l?void 0:l.index)&&(r=G.nextNode(),s++)}return G.currentNode=D,n}v(e){let a=0;for(const t of this._$AV)void 0!==t&&(void 0!==t.strings?(t._$AI(e,t,a),a+=t.strings.length-2):t._$AI(e[a])),a++}}class ee{constructor(e,a,t,i){var n;this.type=2,this._$AH=q,this._$AN=void 0,this._$AA=e,this._$AB=a,this._$AM=t,this.options=i,this._$Cp=null===(n=null==i?void 0:i.isConnected)||void 0===n||n}get _$AU(){var e,a;return null!==(a=null===(e=this._$AM)||void 0===e?void 0:e._$AU)&&void 0!==a?a:this._$Cp}get parentNode(){let e=this._$AA.parentNode;const a=this._$AM;return void 0!==a&&11===(null==e?void 0:e.nodeType)&&(e=a.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,a=this){e=Q(this,e,a),N(e)?e===q||null==e||""===e?(this._$AH!==q&&this._$AR(),this._$AH=q):e!==this._$AH&&e!==W&&this._(e):void 0!==e._$litType$?this.g(e):void 0!==e.nodeType?this.$(e):(e=>P(e)||"function"==typeof(null==e?void 0:e[Symbol.iterator]))(e)?this.T(e):this._(e)}k(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}$(e){this._$AH!==e&&(this._$AR(),this._$AH=this.k(e))}_(e){this._$AH!==q&&N(this._$AH)?this._$AA.nextSibling.data=e:this.$(D.createTextNode(e)),this._$AH=e}g(e){var a;const{values:t,_$litType$:i}=e,n="number"==typeof i?this._$AC(e):(void 0===i.el&&(i.el=J.createElement(Z(i.h,i.h[0]),this.options)),i);if((null===(a=this._$AH)||void 0===a?void 0:a._$AD)===n)this._$AH.v(t);else{const e=new X(n,this),a=e.u(this.options);e.v(t),this.$(a),this._$AH=e}}_$AC(e){let a=Y.get(e.strings);return void 0===a&&Y.set(e.strings,a=new J(e)),a}T(e){P(this._$AH)||(this._$AH=[],this._$AR());const a=this._$AH;let t,i=0;for(const n of e)i===a.length?a.push(t=new ee(this.k(O()),this.k(O()),this,this.options)):t=a[i],t._$AI(n),i++;i<a.length&&(this._$AR(t&&t._$AB.nextSibling,i),a.length=i)}_$AR(e=this._$AA.nextSibling,a){var t;for(null===(t=this._$AP)||void 0===t||t.call(this,!1,!0,a);e&&e!==this._$AB;){const a=e.nextSibling;e.remove(),e=a}}setConnected(e){var a;void 0===this._$AM&&(this._$Cp=e,null===(a=this._$AP)||void 0===a||a.call(this,e))}}class ae{constructor(e,a,t,i,n){this.type=1,this._$AH=q,this._$AN=void 0,this.element=e,this.name=a,this._$AM=i,this.options=n,t.length>2||""!==t[0]||""!==t[1]?(this._$AH=Array(t.length-1).fill(new String),this.strings=t):this._$AH=q}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(e,a=this,t,i){const n=this.strings;let r=!1;if(void 0===n)e=Q(this,e,a,0),r=!N(e)||e!==this._$AH&&e!==W,r&&(this._$AH=e);else{const i=e;let s,o;for(e=n[0],s=0;s<n.length-1;s++)o=Q(this,i[t+s],a,s),o===W&&(o=this._$AH[s]),r||(r=!N(o)||o!==this._$AH[s]),o===q?e=q:e!==q&&(e+=(null!=o?o:"")+n[s+1]),this._$AH[s]=o}r&&!i&&this.j(e)}j(e){e===q?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=e?e:"")}}class te extends ae{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===q?void 0:e}}const ie=j?j.emptyScript:"";class ne extends ae{constructor(){super(...arguments),this.type=4}j(e){e&&e!==q?this.element.setAttribute(this.name,ie):this.element.removeAttribute(this.name)}}class re extends ae{constructor(e,a,t,i,n){super(e,a,t,i,n),this.type=5}_$AI(e,a=this){var t;if((e=null!==(t=Q(this,e,a,0))&&void 0!==t?t:q)===W)return;const i=this._$AH,n=e===q&&i!==q||e.capture!==i.capture||e.once!==i.once||e.passive!==i.passive,r=e!==q&&(i===q||n);n&&this.element.removeEventListener(this.name,this,i),r&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){var a,t;"function"==typeof this._$AH?this._$AH.call(null!==(t=null===(a=this.options)||void 0===a?void 0:a.host)&&void 0!==t?t:this.element,e):this._$AH.handleEvent(e)}}class se{constructor(e,a,t){this.element=e,this.type=6,this._$AN=void 0,this._$AM=a,this.options=t}get _$AU(){return this._$AM._$AU}_$AI(e){Q(this,e)}}const oe={I:ee},le=S.litHtmlPolyfillSupport;null==le||le(J,ee),(null!==(x=S.litHtmlVersions)&&void 0!==x?x:S.litHtmlVersions=[]).push("2.8.0");
 /**
      * @license
      * Copyright 2017 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
      */
-var de,ue;let ce=class extends w{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){var e,a;const t=super.createRenderRoot();return null!==(e=(a=this.renderOptions).renderBefore)&&void 0!==e||(a.renderBefore=t.firstChild),t}update(e){const a=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=((e,a,t)=>{var i,n;const r=null!==(i=null==t?void 0:t.renderBefore)&&void 0!==i?i:a;let s=r._$litPart$;if(void 0===s){const e=null!==(n=null==t?void 0:t.renderBefore)&&void 0!==n?n:null;r._$litPart$=s=new ee(a.insertBefore(O(),e),e,void 0,null!=t?t:{})}return s._$AI(e),s})(a,this.renderRoot,this.renderOptions)}connectedCallback(){var e;super.connectedCallback(),null===(e=this._$Do)||void 0===e||e.setConnected(!0)}disconnectedCallback(){var e;super.disconnectedCallback(),null===(e=this._$Do)||void 0===e||e.setConnected(!1)}render(){return F}};ce.finalized=!0,ce._$litElement$=!0,null===(de=globalThis.litElementHydrateSupport)||void 0===de||de.call(globalThis,{LitElement:ce});const pe=globalThis.litElementPolyfillSupport;null==pe||pe({LitElement:ce}),(null!==(ue=globalThis.litElementVersions)&&void 0!==ue?ue:globalThis.litElementVersions=[]).push("3.3.3");
+var de,ue;let ce=class extends w{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){var e,a;const t=super.createRenderRoot();return null!==(e=(a=this.renderOptions).renderBefore)&&void 0!==e||(a.renderBefore=t.firstChild),t}update(e){const a=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=((e,a,t)=>{var i,n;const r=null!==(i=null==t?void 0:t.renderBefore)&&void 0!==i?i:a;let s=r._$litPart$;if(void 0===s){const e=null!==(n=null==t?void 0:t.renderBefore)&&void 0!==n?n:null;r._$litPart$=s=new ee(a.insertBefore(O(),e),e,void 0,null!=t?t:{})}return s._$AI(e),s})(a,this.renderRoot,this.renderOptions)}connectedCallback(){var e;super.connectedCallback(),null===(e=this._$Do)||void 0===e||e.setConnected(!0)}disconnectedCallback(){var e;super.disconnectedCallback(),null===(e=this._$Do)||void 0===e||e.setConnected(!1)}render(){return W}};ce.finalized=!0,ce._$litElement$=!0,null===(de=globalThis.litElementHydrateSupport)||void 0===de||de.call(globalThis,{LitElement:ce});const pe=globalThis.litElementPolyfillSupport;null==pe||pe({LitElement:ce}),(null!==(ue=globalThis.litElementVersions)&&void 0!==ue?ue:globalThis.litElementVersions=[]).push("3.3.3");
 /**
      * @license
      * Copyright 2017 Google LLC
@@ -618,7 +618,8 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
             <input
               class="form-input"
               type="number"
-              .value=${(null===(e=this._trigger.offset_minutes)||void 0===e?void 0:e.toString())||"0"}
+              .label=${Dn("irrigation_start_triggers.fields.offset_minutes.name", this.hass.language)}
+              .value=${(null === (e = this._trigger.offset_minutes) || void 0 === e ? void 0 : e.toString()) || "0"}
               min="-1440"
               max="1440"
               step="1"
@@ -645,14 +646,15 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
                   <input
                     class="form-input"
                     type="number"
-                    .value=${(null===(a=this._trigger.azimuth_angle)||void 0===a?void 0:a.toString())||"90"}
+                    .label=${Dn("irrigation_start_triggers.fields.azimuth_angle.name", this.hass.language)}
+                    .value=${(null === (t = this._trigger.azimuth_angle) || void 0 === t ? void 0 : t.toString()) || "90"}
                     min="0"
                     max="359"
                     step="1"
                     @input=${this._azimuthChanged}
                   />
                 </div>
-              `:""}
+              ` : ""}
         </div>
 
         <ha-dialog-footer slot="footer">
@@ -663,7 +665,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           >
             ${Vo("irrigation_start_triggers.dialog.cancel",this.hass.language)}
           </ha-button>
-          ${t?"":q`
+          ${t?"":F`
                 <ha-button
                   slot="secondaryAction"
                   appearance="plain"
@@ -1076,7 +1078,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
               @change=${e=>this.handleConfigChange({autocalcenabled:e.target.checked})}
             ></ha-switch>
           </div>
-        </div>`;this.data.autocalcenabled&&(e=q`${e}
+        </div>`;this.data.autocalcenabled&&(e=F`${e}
           <div class="card-content">
             ${this._timeRow(Vo("panels.general.cards.automatic-duration-calculation.labels.calc-time",this.hass.language),this.config.calctime,(e=>this.handleConfigChange({calctime:e})))}
           </div>`),e=q`<ha-card
@@ -1096,7 +1098,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
               @change=${e=>this.saveData({autoupdateenabled:e.target.checked})}
             ></ha-switch>
           </div>
-        </div>`;this.data.autoupdateenabled&&(a=q`${a}
+        </div>`;this.data.autoupdateenabled&&(a=F`${a}
           <div class="card-content">
             <div class="setting-row">
               <div class="setting-label">
@@ -1141,7 +1143,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
                 </div>
               </div>
             </div>
-          </div>`),this.data.autoupdateenabled&&(a=q`${a}
+          </div>`),this.data.autoupdateenabled&&(a=F`${a}
           <div class="card-content">
             ${this._numRow(Vo("panels.general.cards.automatic-update.labels.auto-update-delay",this.hass.language),"s",this.config.autoupdatedelay,(e=>this.saveData({autoupdatedelay:parseInt(e)})),1)}
           </div>`),a=q`<ha-card header="${Vo("panels.general.cards.automatic-update.header",this.hass.language)}",
@@ -1158,7 +1160,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
               @change=${e=>this.handleConfigChange({autoclearenabled:e.target.checked})}
             ></ha-switch>
           </div>
-        </div>`;this.data.autoclearenabled&&(i=q`${i}
+        </div>`;this.data.autoclearenabled&&(i=F`${i}
           <div class="card-content">
             ${this._timeRow(Vo("panels.general.cards.automatic-clear.labels.automatic-clear-time",this.hass.language),this.config.cleardatatime,(e=>this.handleConfigChange({cleardatatime:e})))}
           </div>`),i=q`<ha-card
@@ -1177,7 +1179,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
               @change=${e=>this.handleConfigChange({continuousupdates:e.target.checked})}
             ></ha-switch>
           </div>
-        </div>`;this.data.continuousupdates&&(n=q`${n}
+        </div>`;this.data.continuousupdates&&(n=F`${n}
           <div class="card-content">
             ${this._numRow(Vo("panels.general.cards.continuousupdates.labels.sensor_debounce",this.hass.language),"ms",this.config.sensor_debounce,(e=>this.handleConfigChange({sensor_debounce:parseInt(e)})),1)}
           </div>`),n=q`<ha-card
@@ -1189,7 +1191,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           <div class="card-content">
             ${Vo("panels.general.description",this.hass.language)}
           </div> </ha-card
-        >${a}${e}${i}${n}${r}${s}${o}${l}${d}`}}renderTriggersCard(){if(!this.config||!this.data||!this.hass)return q``;const e=this.config.irrigation_start_triggers||[];return q`
+        >${a}${e}${i}${n}${r}${s}${o}${l}`}}renderTriggersCard(){if(!this.config||!this.data||!this.hass)return F``;const e=this.config.irrigation_start_triggers||[];return F`
       <ha-card
         header="${Vo("irrigation_start_triggers.title",this.hass.language)}"
       >
@@ -1234,11 +1236,11 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
 
         <div class="card-content">
           <div class="triggers-list">
-            ${0===e.length?q`
+            ${0===e.length?F`
                   <div class="no-triggers">
                     ${Vo("irrigation_start_triggers.no_triggers",this.hass.language)}
                   </div>
-                `:e.map(((e,a)=>this.renderTriggerItem(e,a)))}
+                ` : e.map((e, t) => this.renderTriggerItem(e, t))}
           </div>
 
           <div class="add-trigger-section">
@@ -1277,6 +1279,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
         <div class="card-content">
           ${Vo("weather_skip.description",this.hass.language)}
         </div>
+
         <div class="card-content">
           <div class="setting-row">
             <div class="setting-label">
@@ -1353,6 +1356,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
         <div class="card-content">
           ${Vo("coordinate_config.description",this.hass.language)}
         </div>
+
         <div class="card-content">
           <div class="setting-row">
             <div class="setting-label">
@@ -1386,7 +1390,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           </div>
         </div>
       </ha-card>
-    `}renderDaysBetweenIrrigationCard(){return this.config&&this.data&&this.hass?q`
+    `}renderDaysBetweenIrrigationCard(){return this.config&&this.data&&this.hass?F`
       <ha-card
         header="${Vo("days_between_irrigation.title",this.hass.language)}"
       >
@@ -1408,7 +1412,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
     `:q``}async saveData(e){if(this.hass&&this.data){this.isSaving=!0,this._scheduleUpdate(),this._suppressNextConfigUpdate=!0;try{this.data=Object.assign(Object.assign({},this.data),e),this.config=Object.assign(Object.assign({},this.config),e),this._scheduleUpdate(),await Na(this.hass,this.data)}catch(e){this._suppressNextConfigUpdate=!1,console.error("Error saving config:",e),Ma(e,this.shadowRoot.querySelector("ha-card")),await this._fetchData()}finally{this.isSaving=!1,this._scheduleUpdate()}}}handleConfigChange(e){this.debouncedSave(e)}disconnectedCallback(){super.disconnectedCallback()}_textRow(e,a,t,i){return q`
       <div class="setting-row">
         <div class="setting-label">
-          ${e}${a?q` <span class="unit">(${a})</span>`:""}
+          ${e}${a?F` <span class="unit">(${a})</span>`:""}
         </div>
         <input
           class="field"
@@ -1417,7 +1421,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           @change=${e=>i(e.target.value)}
         />
       </div>
-    `}_timeRow(e,a,t){return q`
+    `}_timeRow(e,a,t){return F`
       <div class="setting-row">
         <div class="setting-label">${e}</div>
         <input
@@ -1427,10 +1431,10 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           @change=${e=>t(e.target.value)}
         />
       </div>
-    `}_numRow(e,a,t,i,n=1,r=!1){const s=(String(n).split(".")[1]||"").length,o=(e,a)=>{const t=parseFloat(e.value),r=+((isNaN(t)?0:t)+a*n).toFixed(s);e.value=String(r),i(String(r))};return q`
+    `}_numRow(e,a,t,i,n=1,r=!1){const s=(String(n).split(".")[1]||"").length,o=(e,a)=>{const t=parseFloat(e.value),r=+((isNaN(t)?0:t)+a*n).toFixed(s);e.value=String(r),i(String(r))};return F`
       <div class="setting-row">
         <div class="setting-label">
-          ${e}${a?q` <span class="unit">(${a})</span>`:""}
+          ${e}${a?F` <span class="unit">(${a})</span>`:""}
         </div>
         <div class="num-field">
           <input
@@ -1456,7 +1460,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           ></ha-icon-button>
         </div>
       </div>
-    `}_selectRow(e,a,t){return q`
+    `}_selectRow(e,a,t){return F`
       <div class="setting-row">
         <div class="setting-label">${e}</div>
         <div class="select-wrap">
@@ -1468,7 +1472,7 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           </svg>
         </div>
       </div>
-    `}_actionBtn(e,a,t,i=!1,n=!1){return q`
+    `}_actionBtn(e,a,t,i=!1,n=!1){return F`
       <ha-button
         appearance=${i?"accent":"filled"}
         variant=${i?"danger":"brand"}
@@ -1492,30 +1496,21 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
         color: var(--secondary-text-color);
         line-height: 1.4;
       }
-
-      /* number + unit-select on a single line (e.g. update interval) */
-      .combo-field {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 0 0 auto;
-      }
-      .combo-field .combo-num {
-        width: 90px;
-        max-width: none;
-      }
-      .combo-field .select-wrap {
-        width: 150px;
-        max-width: none;
-      }
-      @media (max-width: 600px) {
-        .combo-field {
-          width: 100%;
-        }
-        .combo-field .combo-num {
-          flex: 1 1 auto;
-        }
-      }
+    }
+    handleConfigChange(e) {
+      this.debouncedSave(e);
+    }
+    disconnectedCallback() {
+      super.disconnectedCallback();
+    }
+    toggleInformation(e) {
+      var t;
+      const a = null === (t = this.shadowRoot) || void 0 === t ? void 0 : t.querySelector("#" + e);
+      a && ("hidden" != a.className ? a.className = "hidden" : a.className = "information");
+    }
+    static get styles() {
+      return h`
+      ${Pn} /* View-specific styles only - most common styles are now in globalStyle */
 
       /* Irrigation triggers styles */
       .trigger-usage {
@@ -1643,11 +1638,11 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
         <h4>
           ${Vo("panels.mappings.weather-records.title",this.hass.language)}
         </h4>
-        ${0===a.length?q`
+        ${0===a.length?F`
               <div class="weather-note">
                 ${Vo("panels.mappings.weather-records.no-data",this.hass.language)}
               </div>
-            `:q`
+            `:F`
               <div class="weather-table">
                 <div class="weather-header">
                   <span
@@ -1666,35 +1661,35 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                     >${Vo("panels.mappings.weather-records.retrieval-time",this.hass.language)}</span
                   >
                 </div>
-                ${a.slice(0,10).map((e=>q`
+                ${a.slice(0,10).map((e=>F`
                     <div class="weather-row">
                       <span
                         >${wl(e.timestamp).format("MM-DD HH:mm")}</span
                       >
                       <span
-                        >${null!==e.temperature&&void 0!==e.temperature?e.temperature.toFixed(1)+"°C":"-"}</span
+                        >${e.temperature?e.temperature.toFixed(1)+"°C":"-"}</span
                       >
                       <span
-                        >${null!==e.humidity&&void 0!==e.humidity?e.humidity.toFixed(1)+"%":"-"}</span
+                        >${e.humidity?e.humidity.toFixed(1)+"%":"-"}</span
                       >
                       <span
-                        >${null!==e.precipitation&&void 0!==e.precipitation?e.precipitation.toFixed(1)+"mm":"-"}</span
+                        >${e.precipitation?e.precipitation.toFixed(1)+"mm":"-"}</span
                       >
                       <span
                         >${e.retrieval_time?wl(e.retrieval_time).format("MM-DD HH:mm"):"-"}</span
                       >
                     </div>
-                  `))}
+                  `)}
               </div>
             `}
       </div>
-    `}renderWateringCalendar(e){if(!this.hass||"number"!=typeof e.id)return q``;const a=this.wateringCalendars.get(e.id),t=a&&e.id in a?a[e.id]:null,i=(null==t?void 0:t.monthly_estimates)||[];return q` <div class="watering-calendar">
+    `}renderWateringCalendar(e){if(!this.hass||"number"!=typeof e.id)return F``;const a=this.wateringCalendars.get(e.id),t=a&&e.id in a?a[e.id]:null,i=(null==t?void 0:t.monthly_estimates)||[];return F` <div class="watering-calendar">
       <h4>Watering Calendar (12-Month Estimates)</h4>
-      ${0===i.length?q`
+      ${0===i.length?F`
             <div class="calendar-note">
-              ${(null==t?void 0:t.error)?`Error generating calendar: ${t.error}`:"No watering calendar data available for this zone"}
+              ${(null == a ? void 0 : a.error) ? `Error generating calendar: ${a.error}` : "No watering calendar data available for this zone"}
             </div>
-          `:q` <div class="calendar-table">
+          `:F` <div class="calendar-table">
               <div class="calendar-header">
                 <span>Month</span>
                 <span>ET (mm)</span>
@@ -1702,27 +1697,27 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                 <span>Watering (L)</span>
                 <span>Avg Temp (°C)</span>
               </div>
-              ${i.map((e=>q`
+              ${i.map((e=>F`
                   <div class="calendar-row">
                     <span
-                      >${e.month_name||`Month ${e.month}`||"-"}</span
+                      >${e.month_name || `Month ${e.month}` || "-"}</span
                     >
                     <span
-                      >${null!==e.estimated_et_mm&&void 0!==e.estimated_et_mm?e.estimated_et_mm.toFixed(1):"-"}</span
+                      >${e.estimated_et_mm?e.estimated_et_mm.toFixed(1):"-"}</span
                     >
                     <span
-                      >${null!==e.average_precipitation_mm&&void 0!==e.average_precipitation_mm?e.average_precipitation_mm.toFixed(1):"-"}</span
+                      >${e.average_precipitation_mm?e.average_precipitation_mm.toFixed(1):"-"}</span
                     >
                     <span
-                      >${null!==e.estimated_watering_volume_liters&&void 0!==e.estimated_watering_volume_liters?e.estimated_watering_volume_liters.toFixed(0):"-"}</span
+                      >${e.estimated_watering_volume_liters?e.estimated_watering_volume_liters.toFixed(0):"-"}</span
                     >
                     <span
-                      >${null!==e.average_temperature_c&&void 0!==e.average_temperature_c?e.average_temperature_c.toFixed(1):"-"}</span
+                      >${e.average_temperature_c?e.average_temperature_c.toFixed(1):"-"}</span
                     >
                   </div>
-                `))}
+                `)}
             </div>
-            ${(null==t?void 0:t.calculation_method)?q`
+            ${(null==t?void 0:t.calculation_method)?F`
                   <div class="calendar-info">
                     Method: ${t.calculation_method}
                   </div>
@@ -1730,7 +1725,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
     </div>`}async saveToHA(e){if(!this.hass)throw new Error("Home Assistant connection not available");var a,t;await(a=this.hass,t=e,a.callApi("POST",je+"/zones",t))}handleZoneFormFocus(){this.isCreatingZone=!0}handleZoneFormBlur(){var e,a,t,i;(null===(a=null===(e=this.nameInput)||void 0===e?void 0:e.value)||void 0===a?void 0:a.trim())||(null===(t=this.sizeInput)||void 0===t?void 0:t.value)||(null===(i=this.throughputInput)||void 0===i?void 0:i.value)||(this.isCreatingZone=!1)}renderTheOptions(e,a){if(this.hass){let t=q`<option value="" ?selected=${void 0===a}">---${Vo("common.labels.select",this.hass.language)}---</option>`;return Object.entries(e).map((([e,i])=>t=q`${t}
             <option
               value="${i.id}"
-              ?selected="${a===i.id}"
+              ?selected="${t === i.id}"
             >
               ${i.id}: ${i.name}
             </option>`)),t}return q``}renderZone(e,a){var t,i,n;if(!this.hass)return q``;const r=this.hass.language,s=e.state===vl.Automatic,o=e.state===vl.Disabled||e.state===vl.Automatic,l=null!=e.explanation&&e.explanation.length>0;if(null!=e.mapping){const a=this.mappings.filter((a=>a.id===e.mapping))[0];null!=a&&null!=a.data&&(e.number_of_data_points=a.data.length)}const d=Vo("panels.zones.labels.states."+e.state,r),u=`${Math.round(Number(e.duration)||0)} s`,c=null!=e.id&&this._expanded.has(e.id);return q`
@@ -1739,7 +1734,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           class="zone-head"
           role="button"
           tabindex="0"
-          aria-expanded=${c?"true":"false"}
+          aria-expanded=${d?"true":"false"}
           @click=${()=>this._toggleZone(e.id)}
           @keydown=${a=>{"Enter"!==a.key&&" "!==a.key||(a.preventDefault(),this._toggleZone(e.id))}}
         >
@@ -1747,7 +1742,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             <div class="zone-title-row">
               <span class="zone-title">${e.name||"—"}</span>
               <ha-label class="state-label state-label--${e.state}" dense
-                >${d}</ha-label
+                >${o}</ha-label
               >
             </div>
             <div class="zone-sub">${u}</div>
@@ -2137,20 +2132,6 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
       }
       /* one unified field style for BOTH inputs and selects, themed with the
          same MDC variables HA's own ha-textfield/ha-select use (native feel) */
-      .setting-hint {
-        font-size: 0.8rem;
-        font-weight: normal;
-        color: var(--secondary-text-color);
-        margin-top: 2px;
-        max-width: 460px;
-      }
-      /* HA entity picker: sized like the other controls, but it brings its own
-         input chrome, so it must NOT get the .field text-input background. */
-      .entity-field {
-        flex: 0 0 auto;
-        width: 360px;
-        max-width: 100%;
-      }
       .field {
         flex: 0 0 auto;
         width: 360px;
@@ -2317,7 +2298,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             .path=${Fo}
           ></ha-svg-icon>
         </div>
-        ${s?q` <div class="si-body">
+        ${s?F` <div class="si-body">
               <div class="moduleconfig">
                 <label class="subheader"
                   >${Vo("panels.modules.cards.module.labels.configuration",this.hass.language)}
@@ -2335,7 +2316,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                   </div>`}
             </div>`:""}
       </ha-card>
-    `;return this.moduleCache.set(l,d),d}renderConfig(e,a){const t=Object.values(this.modules).at(e);if(!t||!this.hass)return;const i=t.schema[a],n=i.name,r=function(e){if(e)return(e=e.replace("_"," ")).charAt(0).toUpperCase()+e.slice(1)}(n);let s="";null==t.config&&(t.config=[]),n in t.config&&(s=t.config[n]);const o=i.required?`${r} *`:null!=r?r:"";if("boolean"==i.type)return q`
+    `;return this.moduleCache.set(l,d),d}renderConfig(e,a){const t=Object.values(this.modules).at(e);if(!t||!this.hass)return;const i=t.schema[a],n=i.name,r=function(e){if(e)return(e=e.replace("_"," ")).charAt(0).toUpperCase()+e.slice(1)}(n);let s="";null==t.config&&(t.config=[]),n in t.config&&(s=t.config[n]);const o=i.required?`${r} *`:null!=r?r:"";if("boolean"==i.type)return F`
         <div class="setting-row">
           <div class="setting-label">${o}</div>
           <input
@@ -2352,10 +2333,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             >
               ${Vo("panels.modules.cards.module.translated-options."+Ea(t,1),a)}
             </option>`))}
-      `;return this._selectRow(o,r,(a=>this.handleEditConfig(e,Object.assign(Object.assign({},t),{config:Object.assign(Object.assign({},t.config),{[n]:a.target.value})}))))}return q``}_textRow(e,a,t,i){return q`
+      `;return this._selectRow(o,r,(a=>this.handleEditConfig(e,Object.assign(Object.assign({},t),{config:Object.assign(Object.assign({},t.config),{[n]:a.target.value})}))))}return F``}_textRow(e,a,t,i){return F`
       <div class="setting-row">
         <div class="setting-label">
-          ${e}${a?q` <span class="unit">(${a})</span>`:""}
+          ${e}${a?F` <span class="unit">(${a})</span>`:""}
         </div>
         <input
           class="field"
@@ -2364,10 +2345,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           @change=${e=>i(e.target.value)}
         />
       </div>
-    `}_numRow(e,a,t,i,n=1,r=!1){const s=(String(n).split(".")[1]||"").length,o=(e,a)=>{const t=parseFloat(e.value),r=+((isNaN(t)?0:t)+a*n).toFixed(s);e.value=String(r),i(String(r))};return q`
+    `}_numRow(e,a,t,i,n=1,r=!1){const s=(String(n).split(".")[1]||"").length,o=(e,a)=>{const t=parseFloat(e.value),r=+((isNaN(t)?0:t)+a*n).toFixed(s);e.value=String(r),i(String(r))};return F`
       <div class="setting-row">
         <div class="setting-label">
-          ${e}${a?q` <span class="unit">(${a})</span>`:""}
+          ${e}${a?F` <span class="unit">(${a})</span>`:""}
         </div>
         <div class="num-field">
           <input
@@ -2393,7 +2374,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           ></ha-icon-button>
         </div>
       </div>
-    `}_selectRow(e,a,t){return q`
+    `}_selectRow(e,a,t){return F`
       <div class="setting-row">
         <div class="setting-label">${e}</div>
         <div class="select-wrap">
@@ -2405,7 +2386,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           </svg>
         </div>
       </div>
-    `}_actionBtn(e,a,t,i=!1,n=!1){return q`
+    `}_actionBtn(e,a,t,i=!1,n=!1){return F`
       <ha-button
         appearance=${i?"accent":"filled"}
         variant=${i?"danger":"brand"}
@@ -2439,7 +2420,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                       class="field"
                       ?disabled="${this.isSaving}"
                     >
-                      ${Object.entries(this.allmodules).map((([e,a])=>q`<option value="${a.id}">
+                      ${Object.entries(this.allmodules).map((([e,a])=>F`<option value="${a.id}">
                             ${a.name}
                           </option>`))}
                     </select>
@@ -2453,6 +2434,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                     appearance="filled"
                     @click="${this.handleAddModule}"
                     ?disabled="${this.isSaving}"
+                    class="${this.isSaving ? "saving" : ""}"
                   >
                     <ha-svg-icon slot="start" .path=${Qo}></ha-svg-icon>
                     ${this.isSaving?Vo("common.saving-messages.adding",this.hass.language):Vo("panels.modules.cards.add-module.actions.add",this.hass.language)}
@@ -2472,11 +2454,11 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
         <h4>
           ${Vo("panels.mappings.weather-records.title",this.hass.language)}
         </h4>
-        ${0===a.length?q`
+        ${0===a.length?F`
               <div class="weather-note">
                 ${Vo("panels.mappings.weather-records.no-data",this.hass.language)}
               </div>
-            `:q`
+            `:F`
               <div class="weather-table">
                 <div class="weather-header">
                   <span
@@ -2499,17 +2481,18 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                     <div class="weather-row">
                       <span>${a}</span>
                       <span
-                        >${null!==e.temperature&&void 0!==e.temperature?e.temperature.toFixed(1)+"°C":"-"}</span
+                        >${null !== e.temperature && void 0 !== e.temperature ? e.temperature.toFixed(1) + "°C" : "-"}</span
                       >
                       <span
-                        >${null!==e.humidity&&void 0!==e.humidity?e.humidity.toFixed(1)+"%":"-"}</span
+                        >${null !== e.humidity && void 0 !== e.humidity ? e.humidity.toFixed(1) + "%" : "-"}</span
                       >
                       <span
-                        >${null!==e.precipitation&&void 0!==e.precipitation?e.precipitation.toFixed(1)+"mm":"-"}</span
+                        >${null !== e.precipitation && void 0 !== e.precipitation ? e.precipitation.toFixed(1) + "mm" : "-"}</span
                       >
                       <span>${t}</span>
                     </div>
-                  `}))}
+                  `;
+      })}
               </div>
             `}
       </div>
@@ -2524,14 +2507,16 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
               id="name${e.id}"
               type="text"
               .value="${e.name}"
-              @change="${t=>this.handleEditMapping(a,Object.assign(Object.assign({},e),{name:t.target.value}))}"
+              @input="${a => this.handleEditMapping(t, Object.assign(Object.assign({}, e), {
+          name: a.target.value
+        }))}"
             />
             ${Object.entries(e.mappings).map((([e])=>this.renderMappingSetting(a,e)))}
             ${i?q`<div class="weather-note">
                   ${Vo("panels.mappings.cards.mapping.errors.cannot-delete-mapping-because-zones-use-it",this.hass.language)}
                 </div>`:q` <div
                   class="action-button"
-                  @click="${e=>this.handleRemoveMapping(e,a)}"
+                  @click="${e => this.handleRemoveMapping(e, t)}"
                 >
                   <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                     <path fill="#404040" d="${Yo}" />
@@ -2543,7 +2528,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           </div>
         </div>
       </ha-card>
-    `;return this.mappingCache.set(t,n),n}renderMappingSetting(e,a){const t=this.mappings[e];if(!t||!this.hass)return q``;const i=t.mappings[a];return q`
+    `;return this.mappingCache.set(t,n),n}renderMappingSetting(e,a){const t=this.mappings[e];if(!t||!this.hass)return F``;const i=t.mappings[a];return F`
       <div class="si-subgroup">
         <div class="si-subgroup-title">
           ${Vo(`panels.mappings.cards.mapping.items.${a.toLowerCase()}`,this.hass.language)}
@@ -2583,10 +2568,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
         </label>
       </div>
       <div class="radio-group">
-        ${s?this.renderWeatherServiceOption(e,a,t):""}
-        ${r?this.renderNoneOption(e,a,t):""}
-        ${this.renderSensorOption(e,a,t)}
-        ${this.renderStaticValueOption(e,a,t)}
+        ${i ? "" : this.renderWeatherServiceOption(e, t, a)}
+        ${i ? this.renderNoneOption(e, t, a) : ""}
+        ${this.renderSensorOption(e, t, a)}
+        ${this.renderStaticValueOption(e, t, a)}
       </div>
     `}renderWeatherServiceOption(e,a,t){if(!this.hass||!this.config)return q``;const i=`${a}_${e}`,n=!this.config.use_weather_service,r=this.config.use_weather_service&&t[aa]===Ye,s=(a===Ie||a===Ve)&&this.config.weather_service!==We;return q`
       <label class="${n?"strikethrough":""}">
@@ -2597,7 +2582,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           name="${i}_source"
           ?checked="${r}"
           ?disabled="${n}"
-          @change="${t=>this.handleSourceChange(e,a,t)}"
+          @change="${a => this.handleSourceChange(e, t, a)}"
         />
         ${Vo("panels.mappings.cards.mapping.sources.weather_service",this.hass.language)}${s?" (via Open-Meteo)":""}
       </label>
@@ -2609,7 +2594,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           value="${ea}"
           name="${i}_source"
           ?checked="${n}"
-          @change="${t=>this.handleSourceChange(e,a,t)}"
+          @change="${a => this.handleSourceChange(e, t, a)}"
         />
         ${Vo("panels.mappings.cards.mapping.sources.none",this.hass.language)}
       </label>
@@ -2621,7 +2606,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           value="${Ze}"
           name="${i}_source"
           ?checked="${n}"
-          @change="${t=>this.handleSourceChange(e,a,t)}"
+          @change="${a => this.handleSourceChange(e, t, a)}"
         />
         ${Vo("panels.mappings.cards.mapping.sources.sensor",this.hass.language)}
       </label>
@@ -2633,7 +2618,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           value="${Ke}"
           name="${i}_source"
           ?checked="${n}"
-          @change="${t=>this.handleSourceChange(e,a,t)}"
+          @change="${a => this.handleSourceChange(e, t, a)}"
         />
         ${Vo("panels.mappings.cards.mapping.sources.static",this.hass.language)}
       </label>
@@ -2698,10 +2683,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             ${e.unit}
           </option>
         `))}
-    `}_textRow(e,a,t,i){return q`
+    `}_textRow(e,a,t,i){return F`
       <div class="setting-row">
         <div class="setting-label">
-          ${e}${a?q` <span class="unit">(${a})</span>`:""}
+          ${e}${a?F` <span class="unit">(${a})</span>`:""}
         </div>
         <input
           class="field"
@@ -2710,10 +2695,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           @change=${e=>i(e.target.value)}
         />
       </div>
-    `}_numRow(e,a,t,i,n=1,r=!1){const s=(String(n).split(".")[1]||"").length,o=(e,a)=>{const t=parseFloat(e.value),r=+((isNaN(t)?0:t)+a*n).toFixed(s);e.value=String(r),i(String(r))};return q`
+    `}_numRow(e,a,t,i,n=1,r=!1){const s=(String(n).split(".")[1]||"").length,o=(e,a)=>{const t=parseFloat(e.value),r=+((isNaN(t)?0:t)+a*n).toFixed(s);e.value=String(r),i(String(r))};return F`
       <div class="setting-row">
         <div class="setting-label">
-          ${e}${a?q` <span class="unit">(${a})</span>`:""}
+          ${e}${a?F` <span class="unit">(${a})</span>`:""}
         </div>
         <div class="num-field">
           <input
@@ -2739,7 +2724,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           ></ha-icon-button>
         </div>
       </div>
-    `}_selectRow(e,a,t){return q`
+    `}_selectRow(e,a,t){return F`
       <div class="setting-row">
         <div class="setting-label">${e}</div>
         <div class="select-wrap">
@@ -2751,7 +2736,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           </svg>
         </div>
       </div>
-    `}_actionBtn(e,a,t,i=!1,n=!1){return q`
+    `}_actionBtn(e,a,t,i=!1,n=!1){return F`
       <ha-button
         appearance=${i?"accent":"filled"}
         variant=${i?"danger":"brand"}
@@ -2761,7 +2746,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
         <ha-svg-icon slot="start" .path=${e}></ha-svg-icon>
         ${a}
       </ha-button>
-    `}render(){return this.hass?this.isLoading?q`
+    `}render(){return this.hass?this.isLoading?F`
         <ha-card
           header="${Vo("panels.mappings.title",this.hass.language)}"
         >
@@ -2769,7 +2754,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             ${Vo("common.loading-messages.general",this.hass.language)}
           </div>
         </ha-card>
-      `:q`
+      `:F`
       <ha-card
         header="${Vo("panels.mappings.title",this.hass.language)}"
       >
@@ -2832,7 +2817,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             .path=${Fo}
           ></ha-svg-icon>
         </div>
-        ${o?q`<div class="si-body">
+        ${o?F`<div class="si-body">
               <div class="settings">
                 ${this._textRow(Vo("panels.mappings.labels.mapping-name",t),"",e.name,(t=>this.handleEditMapping(a,Object.assign(Object.assign({},e),{name:t}))))}
                 ${this.renderMappingSettings(e,a)}
@@ -2845,7 +2830,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
               </div>
             </div>`:""}
       </ha-card>
-    `}renderMappingSettings(e,a){const t=Object.entries(e.mappings);return q`
+    `}renderMappingSettings(e,a){const t=Object.entries(e.mappings);return F`
       ${t.map((([e])=>this.renderMappingSetting(a,e)))}
     `}loadMoreMappings(){this._scheduleUpdate()}static get styles(){return p`
       ${al} ${nl}
@@ -2906,7 +2891,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             ></ha-switch>
           </div>
 
-          ${this._use?q`
+          ${this._use?F`
                 <div class="setting-row">
                   <div class="setting-label">
                     ${Vo("panels.weatherservice.labels.service",a)}
@@ -2916,7 +2901,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                       class="field"
                       @change=${e=>{this._service=e.target.value,this._saved=!1}}
                     >
-                      ${((null===(e=this._info)||void 0===e?void 0:e.services)||[]).map((e=>q`<option
+                      ${((null===(e=this._info)||void 0===e?void 0:e.services)||[]).map((e=>F`<option
                             value="${e}"
                             ?selected=${this._service===e}
                           >
@@ -3015,7 +3000,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           <div class="br-description">
             ${Vo("panels.backuprestore.cards.backup.description",e)}
           </div>
-          ${this._message?q`<div class="br-msg br-msg--success">${this._message}</div>`:""}
+          ${this._message?F`<div class="br-msg br-msg--success">${this._message}</div>`:""}
           <div class="br-actions">
             <ha-button
               appearance="filled"
@@ -3047,7 +3032,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             ${Vo("panels.backuprestore.actions.choose-file",e)}
           </label>
 
-          ${this._pending?q`
+          ${this._pending?F`
                 <div class="br-warning">
                   <ha-svg-icon .path=${"M12,2L1,21H23M12,6L19.53,19H4.47M11,10V14H13V10M11,16V18H13V16"}></ha-svg-icon>
                   <div>
@@ -3070,8 +3055,8 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                   </div>
                 </div>
               `:""}
-          ${this._error?q`<div class="br-msg br-msg--error">${this._error}</div>`:""}
-          ${this._pending?q`<div class="br-actions">
+          ${this._error?F`<div class="br-msg br-msg--error">${this._error}</div>`:""}
+          ${this._pending?F`<div class="br-actions">
                 <ha-button
                   appearance="filled"
                   variant="danger"
@@ -3186,7 +3171,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             ${Vo("panels.info.configuration-not-available",this.hass.language)}
           </div>
         </ha-card>
-      `:q``}renderZoneBucketsCard(){if(!this.hass)return q``;if(!this.zones||0===this.zones.length)return q`
+      `:F``}renderZoneBucketsCard(){if(!this.hass)return F``;if(!this.zones||0===this.zones.length)return F`
         <ha-card
           header="${Vo("panels.info.cards.zone-bucket-values.title",this.hass.language)}"
         >
@@ -3203,7 +3188,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
         header="${Vo("panels.info.cards.zone-bucket-values.title",this.hass.language)}"
       >
         <div class="card-content">
-          ${this.zones.map((a=>{var t,i,n,r,s,o,l,d;return q`
+          ${this.zones.map((a=>{var t,i,n,r,s,o,l,d;return F`
               <div class="zone-info">
                 <div class="zone-header">
                   <label class="zone-name">${a.name}</label>
@@ -3227,10 +3212,11 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                   </div>
                 </div>
               </div>
-            `}))}
+            `;
+      })}
         </div>
       </ha-card>
-    `}renderNextIrrigationCard(){var e,a,t,i,n,r,s,o;return this.hass&&this.info?q`
+    `}renderNextIrrigationCard(){var e,a,t,i,n,r,s,o;return this.hass&&this.info?F`
       <ha-card
         header="${Vo("panels.info.cards.next-irrigation.title",this.hass.language)}"
       >
@@ -3244,7 +3230,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             </span>
           </div>
 
-          ${this.info.next_irrigation_duration?q`
+          ${this.info.next_irrigation_duration?F`
                 <div class="info-item">
                   <label
                     >${Vo("panels.info.cards.next-irrigation.labels.duration",this.hass.language)}:</label
@@ -3255,7 +3241,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                   >
                 </div>
               `:""}
-          ${this.info.next_irrigation_zones&&this.info.next_irrigation_zones.length>0?q`
+          ${this.info.next_irrigation_zones&&this.info.next_irrigation_zones.length>0?F`
                 <div class="info-item">
                   <label
                     >${Vo("panels.info.cards.next-irrigation.labels.zones",this.hass.language)}:</label
@@ -3264,10 +3250,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                     >${this.info.next_irrigation_zones.join(", ")}</span
                   >
                 </div>
-              `:""}
+              ` : ""}
         </div>
       </ha-card>
-    `:q`
+    `:F`
         <ha-card
           header="${Vo("panels.info.cards.next-irrigation.title",null!==(a=null===(e=this.hass)||void 0===e?void 0:e.language)&&void 0!==a?a:"en")}"
         >
@@ -3285,7 +3271,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             </div>
           </div>
         </ha-card>
-      `}renderIrrigationReasonCard(){var e,a,t,i,n,r,s,o;return this.hass&&this.info?q`
+      `}renderIrrigationReasonCard(){var e,a,t,i,n,r,s,o;return this.hass&&this.info?F`
       <ha-card
         header="${Vo("panels.info.cards.irrigation-reason.title",this.hass.language)}"
       >
@@ -3299,7 +3285,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             </span>
           </div>
 
-          ${this.info.sunrise_time?q`
+          ${this.info.sunrise_time?F`
                 <div class="info-item">
                   <label
                     >${Vo("panels.info.cards.irrigation-reason.labels.sunrise",this.hass.language)}:</label
@@ -3309,7 +3295,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                   >
                 </div>
               `:""}
-          ${void 0!==this.info.total_irrigation_duration?q`
+          ${void 0!==this.info.total_irrigation_duration?F`
                 <div class="info-item">
                   <label
                     >${Vo("panels.info.cards.irrigation-reason.labels.total-duration",this.hass.language)}:</label
@@ -3320,7 +3306,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                   >
                 </div>
               `:""}
-          ${this.info.irrigation_explanation?q`
+          ${this.info.irrigation_explanation?F`
                 <div class="info-item explanation">
                   <label
                     >${Vo("panels.info.cards.irrigation-reason.labels.explanation",this.hass.language)}:</label
@@ -3329,10 +3315,10 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                     ${this.info.irrigation_explanation}
                   </div>
                 </div>
-              `:""}
+              ` : ""}
         </div>
       </ha-card>
-    `:q`
+    `:F`
         <ha-card
           header="${Vo("panels.info.cards.irrigation-reason.title",null!==(a=null===(e=this.hass)||void 0===e?void 0:e.language)&&void 0!==a?a:"en")}"
         >
@@ -3440,7 +3426,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           <div class="version">${"v2026.7.1"}</div>
         </div>
 
-        ${a&&t?q`
+        ${a&&t?F`
               <ha-tab-group @wa-tab-show=${this.handlePageSelected}>
                 ${Object.values(Ol).map((a=>q`
                     <ha-tab-group-tab
@@ -3452,7 +3438,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
                     </ha-tab-group-tab>
                   `))}
               </ha-tab-group>
-            `:q`
+            `:F`
               <div class="custom-tabs">
                 ${Object.values(Ol).map((a=>q`
                     <button
@@ -3466,43 +3452,43 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             `}
       </div>
       <div class="view">${this.getView(e)}</div>
-    `}getView(e){switch(e.page){case"info":return q`
+    `}getView(e){switch(e.page){case"info":return F`
           <smart-irrigation-view-info
             .hass=${this.hass}
             .narrow=${this.narrow}
             .path=${e}
           ></smart-irrigation-view-info>
-        `;case"general":return q`
+        `;case"general":return F`
           <smart-irrigation-view-general
             .hass=${this.hass}
             .narrow=${this.narrow}
             .path=${e}
           ></smart-irrigation-view-general>
-        `;case"zones":return q`
+        `;case"zones":return F`
           <smart-irrigation-view-zones
             .hass=${this.hass}
             .narrow=${this.narrow}
             .path=${e}
           ></smart-irrigation-view-zones>
-        `;case"modules":return q`
+        `;case"modules":return F`
           <smart-irrigation-view-modules
             .hass=${this.hass}
             .narrow=${this.narrow}
             .path=${e}
           ></smart-irrigation-view-modules>
-        `;case"mappings":return q`
+        `;case"mappings":return F`
           <smart-irrigation-view-mappings
             .hass=${this.hass}
             .narrow=${this.narrow}
             .path=${e}
           ></smart-irrigation-view-mappings>
-        `;case"weatherservice":return q`
+        `;case"weatherservice":return F`
           <smart-irrigation-view-weatherservice
             .hass=${this.hass}
             .narrow=${this.narrow}
             .path=${e}
           ></smart-irrigation-view-weatherservice>
-        `;case"backuprestore":return q`
+        `;case"backuprestore":return F`
           <smart-irrigation-view-backuprestore
             .hass=${this.hass}
             .narrow=${this.narrow}
@@ -3527,7 +3513,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             >
             (${Vo("panels.help.cards.how-to-get-help.english-only",this.hass.language)}).
           </div></ha-card
-        >`;default:return q`
+        >`;default:return F`
           <ha-card header="Page not found">
             <div class="card-content">
               The page you are trying to reach cannot be found. Please select a
@@ -3664,7 +3650,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
             </span>
           </ha-header-bar>
         </div>
-        <div class="wrapper">${this._params.error||""}</div>
+        <div class="wrapper">${this._params.error || ""}</div>
 
         <ha-dialog-footer slot="footer">
           <ha-button
@@ -3677,7 +3663,7 @@ t.version="2.30.1",i(Gt),t.fn=or,t.min=Jt,t.max=Qt,t.now=Xt,t.utc=m,t.unix=lr,t.
           </ha-button>
         </ha-dialog-footer>
       </ha-dialog>
-    `:q``}static get styles(){return p`
+    `:F``}static get styles(){return p`
       div.wrapper {
         color: var(--primary-text-color);
       }
