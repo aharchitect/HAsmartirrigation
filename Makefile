@@ -21,11 +21,12 @@ help:
 	@echo "Utilities:"
 	@echo "  clean       - Remove virtual environment and cache files"
 
-# Setup virtual environment with Python 3.13
+# Setup virtual environment with Python 3.14 (matches GitHub Actions and the
+# current Home Assistant test stack).
 setup:
 	@echo "Setting up Smart Irrigation development environment..."
-	@which python3.13 > /dev/null || (echo "❌ Python 3.13 not found. Install it first." && exit 1)
-	python3.13 -m venv .venv
+	@which python3.14 > /dev/null || (echo "❌ Python 3.14 not found. Install it first." && exit 1)
+	python3.14 -m venv .venv
 	./.venv/bin/pip install --upgrade pip
 	./.venv/bin/pip install -r requirements-dev.txt
 	@echo ""
