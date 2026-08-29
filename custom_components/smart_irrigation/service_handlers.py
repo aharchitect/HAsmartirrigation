@@ -39,7 +39,11 @@ class ServiceHandlersMixin:
         )
         self.hass.bus.fire(
             f"{const.DOMAIN}_opensprinkler_zone_result",
-            {"success": True, "result": result, "timestamp": datetime.now().isoformat()},
+            {
+                "success": True,
+                "result": result,
+                "timestamp": datetime.now().isoformat(),
+            },
         )
 
     async def handle_run_opensprinkler_zones(self, call):
@@ -49,7 +53,11 @@ class ServiceHandlersMixin:
         )
         self.hass.bus.fire(
             f"{const.DOMAIN}_opensprinkler_run_result",
-            {"success": True, "result": result, "timestamp": datetime.now().isoformat()},
+            {
+                "success": True,
+                "result": result,
+                "timestamp": datetime.now().isoformat(),
+            },
         )
 
     async def handle_get_opensprinkler_status(self, call):
@@ -68,7 +76,11 @@ class ServiceHandlersMixin:
             "station_map": const.CONF_OPENSPRINKLER_STATION_MAP,
             "queue_option": const.CONF_OPENSPRINKLER_QUEUE_OPTION,
         }
-        changes = {config_key: call.data[key] for key, config_key in keys.items() if key in call.data}
+        changes = {
+            config_key: call.data[key]
+            for key, config_key in keys.items()
+            if key in call.data
+        }
         if not changes:
             return
         await self.async_update_config(changes)
