@@ -39,6 +39,8 @@ export const CONF_DIRECT_VALVE_CONTROL_ENABLED = "direct_valve_control_enabled";
 export const CONF_ZONE_SEQUENCING = "zone_sequencing";
 export const ZONE_SEQUENCING_SEQUENTIAL = "sequential";
 export const ZONE_SEQUENCING_PARALLEL = "parallel";
+export const CONF_OPENSPRINKLER_INTEGRATION = "opensprinkler_integration";
+export const CONF_OPENSPRINKLER_STATION_MAP = "opensprinkler_station_map";
 
 // Irrigation start trigger configuration
 export const CONF_IRRIGATION_START_TRIGGERS = "irrigation_start_triggers";
