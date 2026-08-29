@@ -174,18 +174,26 @@ class OpenMeteoClient:  # pylint: disable=invalid-name
                 parsed_data[MAPPING_SOLRAD] = (
                     cur["shortwave_radiation"] * WM2_TO_MJ_PER_DAY
                 )
-            # today's precipitation total from the daily block
-            parsed_data[MAPPING_PRECIPITATION] = self._daily_value(
-                doc, "precipitation_sum", 0, 0.0
-            )
+            # Today's daily total is deliberately not reported here. It is a
+            # forecast for the part of the day that has not happened yet, and
+            # feeding it to the water balance credited rain before it fell
+            # (#787). Current Precipitation above is the measured rate, which is
+            # integrated over the calculation interval instead (#764). The daily
+            # total is still used where a forecast is what is wanted, in
+            # get_forecast_data and the precipitation-skip check.
             self._cached_doc = doc
             return parsed_data
         except (KeyError, requests.RequestException, json.JSONDecodeError) as ex:
             _LOGGER.warning("Error reading current data from Open-Meteo: %s", ex)
             return None
 
-    def get_forecast_data(self):
-        """Return a list of daily forecast dicts, keyed by MAPPING_* constants."""
+    def get_forecast_data(self, include_today=False):
+        """Return a list of daily forecast dicts, keyed by MAPPING_* constants.
+
+        By default today (index 0) is dropped so the list starts at tomorrow,
+        matching the PyETO forecast semantics. Pass ``include_today=True`` (the
+        precipitation-skip check) to keep today at index 0. See #775.
+        """
         try:
             doc = self._get_doc()
             if doc is None or "daily" not in doc:
@@ -199,8 +207,9 @@ class OpenMeteoClient:  # pylint: disable=invalid-name
             # daily aggregate for (humidity, pressure, dew point).
             hourly_means = self._hourly_daily_means(doc)
             parsed_data_total = []
-            # skip today (index 0) like the PirateWeather client does
-            for i in range(1, len(days)):
+            # parse from index 0 (today) so the precipitation-skip check can see
+            # today; today is dropped again on return unless include_today.
+            for i in range(0, len(days)):
                 day = days[i]
                 parsed_data = {}
                 tmax = daily["temperature_2m_max"][i]
@@ -232,7 +241,7 @@ class OpenMeteoClient:  # pylint: disable=invalid-name
                 if "dewpoint" in means:
                     parsed_data[MAPPING_DEWPOINT] = means["dewpoint"]
                 parsed_data_total.append(parsed_data)
-            return parsed_data_total
+            return parsed_data_total if include_today else parsed_data_total[1:]
         except (KeyError, requests.RequestException, json.JSONDecodeError) as ex:
             _LOGGER.warning("Error reading forecast data from Open-Meteo: %s", ex)
             return None

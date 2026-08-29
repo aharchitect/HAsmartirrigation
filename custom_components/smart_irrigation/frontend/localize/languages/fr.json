@@ -69,7 +69,9 @@
         "maximum-bucket-is": "la taille du seau (bucket) maximale est",
         "drainage-rate-is": "Le taux de drainage à saturation (bucket au max) est de",
         "current-drainage-is": "Le drainage actuel est calculé comme",
-        "no-drainage": "Le drainage actuel est de 0 car"
+        "no-drainage": "Le drainage actuel est de 0 car",
+        "crop-factor-applied-to-et": "Le multiplicateur est le coefficient cultural : il a été appliqué à l'évapotranspiration et non à cette durée, qui en tient donc déjà compte. Sa valeur est",
+        "below-irrigation-threshold": "Le déficit n'a pas encore atteint le seuil d'arrosage de cette zone, donc aucun arrosage n'est nécessaire et la durée est mise à 0. Déficit / seuil :"
       }
     }
   },
@@ -163,7 +165,7 @@
         },
         "automatic-clear": {
           "header": "Délestage automatique des données météo",
-          "description": "Suppression automatique des données météo collectées à une heure données. Utilisez ceci pour être sûr qu'il n'y ait plus de restes des données météo des jours précédents. Ne supprimez pas les données météo avant le calcul et n'utilisez cette option que si vous vous attendez à ce que les données météo soient récupérées après le calcul du jour. Idéalement, vous voudrez \"élaguer\" les données les plus tard possible dans la journée.",
+          "description": "Suppression automatique des données météo collectées à une heure donnée. Utilisez ceci pour être sûr qu'il n'y ait plus de restes des données météo des jours précédents. Ne supprimez pas les données météo avant le calcul et n'utilisez cette option que si vous vous attendez à ce que les données météo soient récupérées après le calcul du jour. Idéalement, vous voudrez \"élaguer\" les données le plus tard possible dans la journée.",
           "labels": {
             "automatic-clear-enabled": "Suppression automatique des données météo collectées",
             "automatic-clear-time": "Supprimer les données météo à"
@@ -362,6 +364,7 @@
       "description": "Spécifiez une ou plusieurs zones d'irrigation ici. La durée d'irrigation est calculée par zone, en fonction de la taille, du débit, état, module et groupe de capteurs.",
       "labels": {
         "bucket": "Seau",
+        "et-deficiency": "Déficit ET journalier",
         "duration": "Durée",
         "lead-time": "Délai",
         "mapping": "Groupe de capteurs",
@@ -380,7 +383,13 @@
         "last_calculated": "Dernier calcul",
         "data-last-updated": "Dernière mise à jour",
         "data-number-of-data-points": "Nombre de points de données",
-        "drainage_rate": "Taux de drainage"
+        "drainage_rate": "Taux de drainage",
+        "linked-entity": "Vanne/interrupteur lié",
+        "linked-entity-hint": "La vanne ou l'interrupteur qui arrose cette zone. Dès qu'il fonctionne (robinet manuel, automatisation, ou Smart Irrigation lui-même si le pilotage direct est activé), le réservoir est crédité d'après la durée de fonctionnement et le débit de la zone. Nécessaire pour les fonctions en boucle fermée.",
+        "flow-sensor": "Compteur de volume cumulé",
+        "flow-sensor-hint": "Pour un comptage exact au lieu de débit x temps : un total de compteur d'eau cumulé (state class total_increasing), pas un débit instantané. L'unité est lue automatiquement (L, mL, m³, gal, ft³).",
+        "optional": "option",
+        "irrigation-threshold": "Seuil d'arrosage"
       },
       "no_items": "Il n'y a pas encore de zone définie.",
       "title": "Zones"
@@ -389,7 +398,10 @@
   "title": "Smart Irrigation",
   "irrigation_start_triggers": {
     "title": "Déclencheurs de démarrage d'irrigation",
-    "description": "Configurez le moment où l'irrigation doit démarrer en fonction des événements solaires. Vous pouvez ajouter plusieurs déclencheurs pour différents horaires. Pour les déclencheurs au lever du soleil, laisser le décalage à 0 utilisera automatiquement la durée totale de toutes les zones activées.",
+    "description": "Configurez le moment où l'irrigation doit démarrer en fonction des événements solaires. Définissez vos déclencheurs ci-dessous, puis choisissez lequel (un seul) démarre l'irrigation. Pour les déclencheurs au lever du soleil, laisser le décalage à 0 utilisera automatiquement la durée totale de toutes les zones activées.",
+    "active_label": "Déclencheur actif",
+    "active_default": "Par défaut (lever du soleil moins la durée totale d'arrosage)",
+    "active_hint": "Seul le déclencheur sélectionné démarre l'irrigation, donc un seul run par jour. « Par défaut » cale le run pour qu'il finisse pile au lever du soleil. Ajoute des déclencheurs custom (coucher, azimut, décalages) ci-dessous, puis choisis-en un ici.",
     "usage_before": "Lorsqu'un déclencheur s'active, Smart Irrigation émet l'événement ",
     "usage_after": " — écoutez-le dans une automatisation pour démarrer l'arrosage. Les données de l'événement incluent trigger_name, trigger_type et offset_minutes, vous pouvez donc réagir différemment selon le déclencheur. Les réglages de saut pour précipitations et de jours entre arrosages s'appliquent toujours : un jour de saut, aucun événement n'est émis.",
     "add_trigger": "Ajouter un déclencheur",
@@ -398,7 +410,8 @@
     "trigger_types": {
       "sunrise": "Lever du soleil",
       "sunset": "Coucher du soleil",
-      "solar_azimuth": "Azimut solaire"
+      "solar_azimuth": "Azimut solaire",
+      "time": "Heure fixe"
     },
     "fields": {
       "name": {
@@ -424,6 +437,9 @@
       "account_for_duration": {
         "name": "Tenir compte de la durée",
         "description": "Lorsqu'elle est activée, l'irrigation démarre assez tôt pour se terminer à l'heure indiquée. Lorsqu'elle est désactivée, l'irrigation démarre exactement à l'heure indiquée."
+      },
+      "at": {
+        "name": "Heure"
       }
     },
     "dialog": {
@@ -439,7 +455,8 @@
     "confirm_delete": "Voulez-vous vraiment supprimer le déclencheur \"{name}\" ?",
     "validation": {
       "name_required": "Le nom du déclencheur est obligatoire",
-      "azimuth_invalid": "L'angle d'azimut doit être un nombre valide"
+      "azimuth_invalid": "L'angle d'azimut doit être un nombre valide",
+      "time_invalid": "Veuillez saisir une heure valide au format HH:MM."
     },
     "help": {
       "sunrise_offset": "Pour les déclencheurs au lever du soleil : utilisez des valeurs négatives pour démarrer avant le lever, positives pour démarrer après. Réglez sur 0 pour démarrer automatiquement assez tôt afin de terminer toutes les zones avant le lever du soleil.",
@@ -469,5 +486,18 @@
     "description": "Configurez le nombre minimum de jours qui doivent s'écouler entre les événements d'irrigation. Cela aide à contrôler la fréquence d'arrosage pour la conservation de l'eau et la gestion de la santé des plantes.\n\nCas d'usage typiques:\n• Entretien de pelouse: intervalles de 1-2 jours préviennent l'arrosage excessif\n• Restrictions de sécheresse: intervalles de 6+ jours pour arrosage hebdomadaire\n• Plantes à racines profondes: intervalles de 3-7 jours pour arrosage moins fréquent\n• Conservation de l'eau: personnalisable selon le climat et les conditions du sol",
     "label": "Jours minimum entre irrigations",
     "help_text": "Définir à 0 pour désactiver cette fonction. Les valeurs de 1-365 jours sont prises en charge. Ce paramètre fonctionne avec la logique de prévision de précipitation existante."
+  },
+  "observed_watering": {
+    "title": "Arrosage observé (boucle fermée)",
+    "description": "Crédite automatiquement le réservoir de chaque zone à partir de l'arrosage réel, au lieu de le réinitialiser depuis une automatisation. Une fois activé, choisissez une entité vanne/interrupteur par zone dans l'onglet Zones : pendant qu'elle est ouverte, le réservoir est crédité d'après la durée et le débit de la zone. Pour un comptage exact, vous pouvez aussi choisir un compteur de volume cumulé (type compteur d'eau) par zone, et le volume mesuré est alors utilisé. Important : quand c'est activé, c'est la seule chose qui crédite le réservoir, donc retirez tout appel à reset_bucket de votre automatisation d'irrigation pour éviter un double comptage.",
+    "enabled_label": "Activer l'arrosage observé",
+    "direct_control_label": "Laisser Smart Irrigation piloter la vanne",
+    "direct_control_description": "Une fois activé, Smart Irrigation ouvre la vanne liée de chaque zone, attend la durée calculée, puis la referme - aucune automatisation nécessaire. Un arrosage en cours reprend après un redémarrage. Sécurité : si Home Assistant tombe longtemps en plein arrosage, la vanne reste ouverte et continue d'arroser, donnez donc à votre vanne un failsafe matériel (une durée d'ouverture maximale).",
+    "sequencing_label": "Séquencement des zones",
+    "sequencing": {
+      "sequential": "Séquentiel (une zone à la fois)",
+      "parallel": "Parallèle (toutes les zones en même temps)"
+    },
+    "sequencing_description": "Comment vos zones sont arrosées. Ce réglage détermine la durée dont un déclencheur tient compte lorsqu'il doit finir au lever du soleil : l'une après l'autre prend la somme des durées de chaque zone, toutes en même temps prend la plus longue. Il s'applique que Smart Irrigation pilote les vannes lui-même ou que ce soit votre propre automatisation."
   }
 }

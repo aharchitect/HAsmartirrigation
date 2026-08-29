@@ -32,8 +32,10 @@ OWM_pressure_key_name = "pressure"
 OWM_humidity_key_name = "humidity"
 OWM_temp_key_name = "temp"
 OWM_dew_point_key_name = "dew_point"
-OWM_current_rain_key_name = "rain.1h"
-OWM_current_snow_key_name = "snow.1h"
+OWM_current_rain_key_name = "rain"
+OWM_current_snow_key_name = "snow"
+# One Call reports the last hour under a nested key: {"rain": {"1h": 3.16}}.
+OWM_current_precipitation_period = "1h"
 
 OWM_required_keys = {
     OWM_wind_speed_key_name,
@@ -48,6 +50,25 @@ min_temp_key_name = "min_temp"
 precip_key_name = "precip"
 
 OWM_required_key_temp = {"day", "min", "max"}
+
+
+def current_precipitation(current):
+    """Return rain + snow of the last hour from a One Call "current" block, in mm.
+
+    One Call nests these as ``{"rain": {"1h": 3.16}}`` and leaves the key out
+    entirely when nothing is falling, so a missing key means 0, not an error.
+    A plain number is accepted too: that is the shape of the daily entries, and
+    it costs nothing to tolerate it here.
+    """
+    total = 0.0
+    for key in (OWM_current_rain_key_name, OWM_current_snow_key_name):
+        value = current.get(key)
+        if isinstance(value, dict):
+            value = value.get(OWM_current_precipitation_period)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            total += float(value)
+    return total
+
 
 # Validators
 OWM_validators = {
@@ -90,8 +111,15 @@ class OWMClient:  # pylint: disable=invalid-name
         self._cached_data = None
         self._cached_forecast_data = None
 
-    def get_forecast_data(self):
-        """Validate and return forecast data."""
+    def get_forecast_data(self, include_today=False):
+        """Validate and return forecast data.
+
+        By default today's entry (daily[0]) is dropped so the returned list
+        starts at tomorrow, which is the semantics the PyETO forecast averaging
+        relies on. Pass ``include_today=True`` (used by the precipitation-skip
+        check) to keep today at index 0 so "today + tomorrow" can be summed. See
+        #775.
+        """
         if (
             self._cached_forecast_data is None
             or self.override_cache
@@ -112,8 +140,11 @@ class OWMClient:  # pylint: disable=invalid-name
                 # parse out values from daily
                 if "daily" in doc:
                     parsed_data_total = []
-                    # get the required values from daily.
-                    for x in range(1, len(doc["daily"]) - 1):
+                    # get the required values from daily. Parse from index 0
+                    # (today) so the precipitation-skip check can see today; the
+                    # today entry is dropped again on return unless the caller
+                    # asks for it via include_today.
+                    for x in range(0, len(doc["daily"]) - 1):
                         data = doc["daily"][x]
                         parsed_data = {}
 
@@ -191,7 +222,7 @@ class OWMClient:  # pylint: disable=invalid-name
                         parsed_data_total.append(parsed_data)
                     self._cached_forecast_data = parsed_data_total
                     self._last_time_called = datetime.datetime.now()
-                    return parsed_data_total
+                    return parsed_data_total if include_today else parsed_data_total[1:]
                 _LOGGER.warning(
                     "Ignoring OWM input: missing required key 'daily' in OWM API return"
                 )
@@ -203,7 +234,11 @@ class OWMClient:  # pylint: disable=invalid-name
         else:
             # return cached_data
             _LOGGER.info("Returning cached OWM forecastdata")
-            return self._cached_forecast_data
+            return (
+                self._cached_forecast_data
+                if include_today
+                else self._cached_forecast_data[1:]
+            )
 
     def relative_to_absolute_pressure(self, pressure, height):
         """Convert relative pressure to absolute pressure."""
@@ -276,45 +311,26 @@ class OWMClient:  # pylint: disable=invalid-name
                     parsed_data[MAPPING_HUMIDITY] = data[OWM_humidity_key_name]
                     parsed_data[MAPPING_TEMPERATURE] = data[OWM_temp_key_name]
                     parsed_data[MAPPING_DEWPOINT] = data[OWM_dew_point_key_name]
-                    parsed_data[MAPPING_CURRENT_PRECIPITATION] = 0.0
                     # is it currently raining or snowing?
                     # should this only be added if the precipProbability is above a certain threshold?
-                    if OWM_current_rain_key_name in data:
-                        parsed_data[MAPPING_CURRENT_PRECIPITATION] += data[
-                            OWM_current_rain_key_name
-                        ]
-                    if OWM_current_snow_key_name in data:
-                        parsed_data[MAPPING_CURRENT_PRECIPITATION] += data[
-                            OWM_current_snow_key_name
-                        ]
+                    parsed_data[MAPPING_CURRENT_PRECIPITATION] = current_precipitation(
+                        data
+                    )
 
                     # NOT used: also put in min/max here as just the current temp
                     # removing this as part of beta12. Temperature is the only thing we want to take and we will apply min and max aggregation on our own.
                     # parsed_data[MAPPING_MAX_TEMP] = data[OWM_temp_key_name]
                     # parsed_data[MAPPING_MIN_TEMP] = data[OWM_temp_key_name]
 
-                    # add precip from daily
-                    dailydata = doc["daily"][0]
-                    if dailydata is not None:
-                        # if rain or snow are missing from the OWM data set them to 0
-                        rain = 0.0
-                        snow = 0.0
-                        if "rain" in dailydata:
-                            rain = float(dailydata["rain"])
-                        if "snow" in dailydata:
-                            snow = float(dailydata["snow"])
-                        parsed_data[MAPPING_PRECIPITATION] = rain + snow
-                        _LOGGER.debug("OWMCLIENT daily rain: %s", rain)
-
-                        # get max temp and min temp and store
-                        # removing this as part of beta12. Temperature is the only thing we want to take and we will apply min and max aggregation on our own.
-                        # parsed_data[MAPPING_MIN_TEMP] = dailydata[OWM_temp_key_name]["min"]
-                        # parsed_data[MAPPING_MAX_TEMP] = dailydata[OWM_temp_key_name]["max"]
-                    else:
-                        parsed_data[MAPPING_PRECIPITATION] = 0.0
+                    # The water balance is fed by Current Precipitation, the
+                    # rate, which is integrated over the calculation interval.
+                    # Copying it into Precipitation as well would hand the
+                    # aggregation a per-interval amount to treat as an
+                    # accumulated depth, which is what undercounted the rain
+                    # (#764).
                     _LOGGER.debug(
-                        "OWMCLIENT daily precipitation: %s",
-                        parsed_data[MAPPING_PRECIPITATION],
+                        "OWMCLIENT actual precipitation rate (rain.1h + snow.1h): %s mm/h",
+                        parsed_data[MAPPING_CURRENT_PRECIPITATION],
                     )
 
                     self._cached_data = parsed_data

@@ -396,20 +396,49 @@ class SmartIrrigationViewMappings extends SubscribeMixin(LitElement) {
       return; // Don't add empty mappings
     }
 
-    const the_mappings = {
-      [MAPPING_DEWPOINT]: "",
-      [MAPPING_EVAPOTRANSPIRATION]: "",
-      [MAPPING_HUMIDITY]: "",
-      //removing this as part of beta12. Temperature is the only thing we want to take and we will apply min and max aggregation on our own.
-      //[MAPPING_MAX_TEMP]: "",
-      //[MAPPING_MIN_TEMP]: "",
-      [MAPPING_PRECIPITATION]: "",
-      [MAPPING_CURRENT_PRECIPITATION]: "",
-      [MAPPING_PRESSURE]: "",
-      [MAPPING_SOLRAD]: "",
-      [MAPPING_TEMPERATURE]: "",
-      [MAPPING_WINDSPEED]: "",
+    // A new group has to carry a real source per field: the dropdown below
+    // shows "weather service" as its first option, so a group stored without
+    // any source looks configured while nothing is ever fetched for it.
+    const useWeatherService = !!this.config?.use_weather_service;
+    const defaultSource = (name: string) => {
+      // Evapotranspiration and solar radiation are not delivered by the
+      // configured weather service directly.
+      if (
+        name === MAPPING_EVAPOTRANSPIRATION ||
+        name === MAPPING_SOLRAD ||
+        name === MAPPING_PRECIPITATION
+      ) {
+        return useWeatherService
+          ? MAPPING_CONF_SOURCE_NONE
+          : MAPPING_CONF_SOURCE_SENSOR;
+      }
+      return useWeatherService
+        ? MAPPING_CONF_SOURCE_WEATHER_SERVICE
+        : MAPPING_CONF_SOURCE_SENSOR;
     };
+    const the_mappings = Object.fromEntries(
+      [
+        MAPPING_DEWPOINT,
+        MAPPING_EVAPOTRANSPIRATION,
+        MAPPING_HUMIDITY,
+        //removing this as part of beta12. Temperature is the only thing we want to take and we will apply min and max aggregation on our own.
+        //MAPPING_MAX_TEMP,
+        //MAPPING_MIN_TEMP,
+        MAPPING_PRECIPITATION,
+        MAPPING_CURRENT_PRECIPITATION,
+        MAPPING_PRESSURE,
+        MAPPING_SOLRAD,
+        MAPPING_TEMPERATURE,
+        MAPPING_WINDSPEED,
+      ].map((name) => [
+        name,
+        {
+          [MAPPING_CONF_SOURCE]: defaultSource(name),
+          [MAPPING_CONF_SENSOR]: "",
+          [MAPPING_CONF_UNIT]: "",
+        },
+      ]),
+    );
     const newMapping: SmartIrrigationMapping = {
       //id: this.mappings.length + 1,
       name: this.mappingNameInput.value.trim(),
@@ -677,10 +706,17 @@ class SmartIrrigationViewMappings extends SubscribeMixin(LitElement) {
     const isSpecialMapping =
       value === MAPPING_EVAPOTRANSPIRATION || value === MAPPING_SOLRAD;
     const currentSource = mappingline[MAPPING_CONF_SOURCE];
+    // A weather service does not supply a precipitation depth worth using: it
+    // reports the rain of the last hour, a rate, which reaches the water
+    // balance through Current Precipitation. The depth is for a rain gauge of
+    // your own, so it can be left unset.
+    const isPrecipitationDepth = value === MAPPING_PRECIPITATION;
     // Solar Radiation and Evapotranspiration can be sourced from the weather
     // service on any provider: for services that don't supply them (OWM /
     // Pirate Weather) the integration fills them from Open-Meteo.
-    const offerWeatherService = !!this.config.use_weather_service;
+    const offerWeatherService =
+      !!this.config.use_weather_service && !isPrecipitationDepth;
+    const offerNone = isSpecialMapping || isPrecipitationDepth;
     // Show "(via Open-Meteo)" when the value will actually come from the
     // Open-Meteo fallback rather than the chosen service.
     const viaOpenMeteo =
@@ -699,7 +735,7 @@ class SmartIrrigationViewMappings extends SubscribeMixin(LitElement) {
             )}${viaOpenMeteo ? " (via Open-Meteo)" : ""}
           </option>`
         : ""}
-      ${isSpecialMapping
+      ${offerNone
         ? html`<option
             value="${MAPPING_CONF_SOURCE_NONE}"
             ?selected=${currentSource === MAPPING_CONF_SOURCE_NONE}

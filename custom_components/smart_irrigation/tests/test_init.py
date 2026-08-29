@@ -414,3 +414,37 @@ class TestDaysBetweenIrrigation:
             raise SmartIrrigationError(error_message)
 
         assert str(exc_info.value) == error_message
+
+
+class TestZoneDeletion:
+    """Test cleanup when a zone is deleted."""
+
+    async def test_async_remove_entity_removes_per_zone_device(
+        self,
+        hass: HomeAssistant,
+        mock_config_entry: ConfigEntry,
+        mock_session: AsyncMock,
+    ) -> None:
+        """Deleting a zone removes its per-zone device (and thus child entities) (#776)."""
+        from homeassistant.helpers import device_registry as dr
+
+        mock_config_entry.add_to_hass(hass)
+        hass.data[const.DOMAIN] = {"zones": {}}
+
+        coordinator = SmartIrrigationCoordinator(
+            hass, mock_session, mock_config_entry, AsyncMock()
+        )
+        zone_id = 5
+        identifiers = {(const.DOMAIN, f"{coordinator.id}_zone_{zone_id}")}
+
+        device_registry = dr.async_get(hass)
+        device_registry.async_get_or_create(
+            config_entry_id=mock_config_entry.entry_id,
+            identifiers=identifiers,
+            name="Test zone",
+        )
+        assert device_registry.async_get_device(identifiers=identifiers) is not None
+
+        await coordinator.async_remove_entity(zone_id)
+
+        assert device_registry.async_get_device(identifiers=identifiers) is None

@@ -294,6 +294,7 @@ export class SmartIrrigationPanel extends LitElement {
           padding: 0 16px;
           font-weight: 400;
           box-sizing: border-box;
+          border-bottom: var(--app-header-border-bottom, none);
         }
         .main-title {
           margin: 0 0 0 24px;
