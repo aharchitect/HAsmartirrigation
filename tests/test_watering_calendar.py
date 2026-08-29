@@ -141,7 +141,10 @@ async def coordinator(hass, mock_store):
 
     yield coord
 
-    await coord.async_unload()
+    # cancel the midnight tracker registered in the constructor, otherwise the
+    # HA test plugin fails the test with a lingering timer
+    if coord._track_midnight_time_unsub:
+        coord._track_midnight_time_unsub()
 
 
 class TestWateringCalendar:

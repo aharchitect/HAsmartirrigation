@@ -17,22 +17,28 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, config_entry: ConfigEntry
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
+    # Build a separate dict for the diagnostics output. Never mutate
+    # hass.data[DOMAIN] in place: popping the coordinator (or redacting the API
+    # key on the live dict) would break the running integration until a reload
+    # (#758 - tabs stop loading after downloading diagnostics).
     data = hass.data[const.DOMAIN]
-    coordinator = data.pop("coordinator", None)
-    data.pop("zones", None)
+    coordinator = data.get("coordinator")
+    diagnostics: dict[str, Any] = {
+        key: value for key, value in data.items() if key not in ("coordinator", "zones")
+    }
     if coordinator is not None:
         store = coordinator.store
         if store is not None:
-            data["store"] = {
+            diagnostics["store"] = {
                 "config": await store.async_get_config(),
-                "mappings": store.get_mappings(),
-                "modules": store.get_modules(),
-                "zones": store.get_zones(),
+                "mappings": await store.async_get_mappings(),
+                "modules": await store.async_get_modules(),
+                "zones": await store.async_get_zones(),
             }
         else:
             _LOGGER.warning("Store is not available")
     else:
         _LOGGER.warning("Coordinator is not available")
-    if const.CONF_WEATHER_SERVICE_API_KEY in data:
-        data[const.CONF_WEATHER_SERVICE_API_KEY] = "[redacted]"
-    return data
+    if const.CONF_WEATHER_SERVICE_API_KEY in diagnostics:
+        diagnostics[const.CONF_WEATHER_SERVICE_API_KEY] = "[redacted]"
+    return diagnostics

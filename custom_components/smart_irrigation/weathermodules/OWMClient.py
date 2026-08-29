@@ -90,8 +90,15 @@ class OWMClient:  # pylint: disable=invalid-name
         self._cached_data = None
         self._cached_forecast_data = None
 
-    def get_forecast_data(self):
-        """Validate and return forecast data."""
+    def get_forecast_data(self, include_today=False):
+        """Validate and return forecast data.
+
+        By default today's entry (daily[0]) is dropped so the returned list
+        starts at tomorrow, which is the semantics the PyETO forecast averaging
+        relies on. Pass ``include_today=True`` (used by the precipitation-skip
+        check) to keep today at index 0 so "today + tomorrow" can be summed. See
+        #775.
+        """
         if (
             self._cached_forecast_data is None
             or self.override_cache
@@ -112,8 +119,11 @@ class OWMClient:  # pylint: disable=invalid-name
                 # parse out values from daily
                 if "daily" in doc:
                     parsed_data_total = []
-                    # get the required values from daily.
-                    for x in range(1, len(doc["daily"]) - 1):
+                    # get the required values from daily. Parse from index 0
+                    # (today) so the precipitation-skip check can see today; the
+                    # today entry is dropped again on return unless the caller
+                    # asks for it via include_today.
+                    for x in range(0, len(doc["daily"]) - 1):
                         data = doc["daily"][x]
                         parsed_data = {}
 
@@ -191,7 +201,7 @@ class OWMClient:  # pylint: disable=invalid-name
                         parsed_data_total.append(parsed_data)
                     self._cached_forecast_data = parsed_data_total
                     self._last_time_called = datetime.datetime.now()
-                    return parsed_data_total
+                    return parsed_data_total if include_today else parsed_data_total[1:]
                 _LOGGER.warning(
                     "Ignoring OWM input: missing required key 'daily' in OWM API return"
                 )
@@ -203,7 +213,11 @@ class OWMClient:  # pylint: disable=invalid-name
         else:
             # return cached_data
             _LOGGER.info("Returning cached OWM forecastdata")
-            return self._cached_forecast_data
+            return (
+                self._cached_forecast_data
+                if include_today
+                else self._cached_forecast_data[1:]
+            )
 
     def relative_to_absolute_pressure(self, pressure, height):
         """Convert relative pressure to absolute pressure."""
@@ -293,27 +307,15 @@ class OWMClient:  # pylint: disable=invalid-name
                     # parsed_data[MAPPING_MAX_TEMP] = data[OWM_temp_key_name]
                     # parsed_data[MAPPING_MIN_TEMP] = data[OWM_temp_key_name]
 
-                    # add precip from daily
-                    dailydata = doc["daily"][0]
-                    if dailydata is not None:
-                        # if rain or snow are missing from the OWM data set them to 0
-                        rain = 0.0
-                        snow = 0.0
-                        if "rain" in dailydata:
-                            rain = float(dailydata["rain"])
-                        if "snow" in dailydata:
-                            snow = float(dailydata["snow"])
-                        parsed_data[MAPPING_PRECIPITATION] = rain + snow
-                        _LOGGER.debug("OWMCLIENT daily rain: %s", rain)
-
-                        # get max temp and min temp and store
-                        # removing this as part of beta12. Temperature is the only thing we want to take and we will apply min and max aggregation on our own.
-                        # parsed_data[MAPPING_MIN_TEMP] = dailydata[OWM_temp_key_name]["min"]
-                        # parsed_data[MAPPING_MAX_TEMP] = dailydata[OWM_temp_key_name]["max"]
-                    else:
-                        parsed_data[MAPPING_PRECIPITATION] = 0.0
+                    # Use actual measured rain (rain.1h + snow.1h from the current
+                    # observation) instead of daily[0].rain (forecast total). Crediting
+                    # forecast rain before it falls causes bucket jumps that swing back
+                    # when the forecast changes or doesn't materialise (issue #694).
+                    parsed_data[MAPPING_PRECIPITATION] = parsed_data.get(
+                        MAPPING_CURRENT_PRECIPITATION, 0.0
+                    )
                     _LOGGER.debug(
-                        "OWMCLIENT daily precipitation: %s",
+                        "OWMCLIENT actual precipitation (rain.1h + snow.1h): %s",
                         parsed_data[MAPPING_PRECIPITATION],
                     )
 
