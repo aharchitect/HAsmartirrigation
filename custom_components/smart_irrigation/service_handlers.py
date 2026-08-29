@@ -29,6 +29,55 @@ class ServiceHandlersMixin:
     zone-config / calculation helpers).
     """
 
+    async def handle_run_opensprinkler_zone(self, call):
+        """Run one mapped OpenSprinkler station for a Smart Irrigation zone."""
+        result = await self.opensprinkler_bridge.async_run_zone(
+            call.data.get("zone_id"),
+            station_entity_id=call.data.get("entity_id"),
+            run_seconds=call.data.get("run_seconds"),
+            queue_option=call.data.get("queue_option"),
+        )
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_zone_result",
+            {"success": True, "result": result, "timestamp": datetime.now().isoformat()},
+        )
+
+    async def handle_run_opensprinkler_zones(self, call):
+        """Run mapped OpenSprinkler stations for Smart Irrigation zones."""
+        result = await self.opensprinkler_bridge.async_run_zones(
+            call.data.get("zone_ids")
+        )
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_run_result",
+            {"success": True, "result": result, "timestamp": datetime.now().isoformat()},
+        )
+
+    async def handle_get_opensprinkler_status(self, call):
+        """Get OpenSprinkler bridge status service handler."""
+        status = await self.opensprinkler_bridge.async_get_status()
+        self.hass.data[const.DOMAIN]["opensprinkler_status"] = status
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_status",
+            {"status": status, "timestamp": datetime.now().isoformat()},
+        )
+
+    async def handle_configure_opensprinkler_bridge(self, call):
+        """Configure the optional OpenSprinkler bridge."""
+        keys = {
+            "enabled": const.CONF_OPENSPRINKLER_INTEGRATION,
+            "station_map": const.CONF_OPENSPRINKLER_STATION_MAP,
+            "queue_option": const.CONF_OPENSPRINKLER_QUEUE_OPTION,
+        }
+        changes = {config_key: call.data[key] for key, config_key in keys.items() if key in call.data}
+        if not changes:
+            return
+        await self.async_update_config(changes)
+        status = await self.opensprinkler_bridge.async_get_status()
+        self.hass.bus.fire(
+            f"{const.DOMAIN}_opensprinkler_configured",
+            {"status": status, "timestamp": datetime.now().isoformat()},
+        )
+
     async def _async_set_all_buckets(self, val=0):
         """Set all buckets to val."""
         zones = await self.store.async_get_zones()
