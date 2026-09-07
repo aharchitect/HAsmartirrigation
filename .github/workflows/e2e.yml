@@ -1,0 +1,44 @@
+name: Home Assistant runtime tests
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+
+jobs:
+  e2e:
+    name: Testcontainers HA runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Smart Irrigation
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: custom_components/smart_irrigation/frontend/package-lock.json
+
+      - name: Run Home Assistant runtime suite
+        env:
+          E2E_KEEP_ARTIFACTS: "1"
+        run: make test-e2e
+
+      - name: Upload sanitized runtime diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: smart-irrigation-ha-runtime
+          path: .e2e-artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7

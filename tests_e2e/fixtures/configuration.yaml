@@ -1,0 +1,26 @@
+homeassistant:
+  name: Smart Irrigation Runtime Test
+  latitude: 45.0
+  longitude: 5.0
+  elevation: 250
+  unit_system: metric
+  time_zone: UTC
+  currency: EUR
+  country: FR
+
+http:
+  server_port: 8123
+
+api:
+auth:
+config:
+frontend:
+onboarding:
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+
+logger:
+  default: warning
+  logs:
+    custom_components.smart_irrigation: info
