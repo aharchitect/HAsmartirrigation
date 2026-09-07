@@ -347,45 +347,49 @@ export class TriggerDialog extends LitElement {
             </ha-formfield>
           </div>
 
-          ${this._trigger.type === TRIGGER_TYPE_TIME
-            ? html`
-                <div class="form-group">
-                  <label class="form-label"
-                    >${localize(
-                      "irrigation_start_triggers.fields.at.name",
-                      this.hass.language,
-                    )}</label
-                  >
-                  <input
-                    class="form-input"
-                    type="time"
-                    .value=${this._trigger.at || "06:00"}
-                    @input=${this._atChanged}
-                  />
-                </div>
-              `
-            : ""}
-          ${this._trigger.type === TRIGGER_TYPE_SOLAR_AZIMUTH
-            ? html`
-                <div class="form-group">
-                  <label class="form-label"
-                    >${localize(
-                      "irrigation_start_triggers.fields.azimuth_angle.name",
-                      this.hass.language,
-                    )}</label
-                  >
-                  <input
-                    class="form-input"
-                    type="number"
-                    .value=${this._trigger.azimuth_angle?.toString() || "90"}
-                    min="0"
-                    max="359"
-                    step="1"
-                    @input=${this._azimuthChanged}
-                  />
-                </div>
-              `
-            : ""}
+          ${
+            this._trigger.type === TRIGGER_TYPE_TIME
+              ? html`
+                  <div class="form-group">
+                    <label class="form-label"
+                      >${localize(
+                        "irrigation_start_triggers.fields.at.name",
+                        this.hass.language,
+                      )}</label
+                    >
+                    <input
+                      class="form-input"
+                      type="time"
+                      .value=${this._trigger.at || "06:00"}
+                      @input=${this._atChanged}
+                    />
+                  </div>
+                `
+              : ""
+          }
+          ${
+            this._trigger.type === TRIGGER_TYPE_SOLAR_AZIMUTH
+              ? html`
+                  <div class="form-group">
+                    <label class="form-label"
+                      >${localize(
+                        "irrigation_start_triggers.fields.azimuth_angle.name",
+                        this.hass.language,
+                      )}</label
+                    >
+                    <input
+                      class="form-input"
+                      type="number"
+                      .value=${this._trigger.azimuth_angle?.toString() || "90"}
+                      min="0"
+                      max="359"
+                      step="1"
+                      @input=${this._azimuthChanged}
+                    />
+                  </div>
+                `
+              : ""
+          }
         </div>
 
         <ha-dialog-footer slot="footer">
@@ -399,21 +403,23 @@ export class TriggerDialog extends LitElement {
               this.hass.language,
             )}
           </ha-button>
-          ${!isCreate
-            ? html`
-                <ha-button
-                  slot="secondaryAction"
-                  appearance="plain"
-                  variant="danger"
-                  @click=${this._deleteTrigger}
-                >
-                  ${localize(
-                    "irrigation_start_triggers.dialog.delete",
-                    this.hass.language,
-                  )}
-                </ha-button>
-              `
-            : ""}
+          ${
+            !isCreate
+              ? html`
+                  <ha-button
+                    slot="secondaryAction"
+                    appearance="plain"
+                    variant="danger"
+                    @click=${this._deleteTrigger}
+                  >
+                    ${localize(
+                      "irrigation_start_triggers.dialog.delete",
+                      this.hass.language,
+                    )}
+                  </ha-button>
+                `
+              : ""
+          }
           <ha-button
             slot="primaryAction"
             appearance="accent"

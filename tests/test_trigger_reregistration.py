@@ -17,11 +17,14 @@ def _coordinator():
     coordinator.hass = MagicMock()
     coordinator.store = MagicMock()
     coordinator.store.async_update_config = AsyncMock()
+    coordinator.store.async_get_config = AsyncMock(return_value={})
     coordinator.set_up_auto_calc_time = AsyncMock()
     coordinator.set_up_auto_update_time = AsyncMock()
     coordinator.set_up_auto_clear_time = AsyncMock()
     coordinator.async_setup_observed_watering = AsyncMock()
     coordinator.register_start_event = AsyncMock()
+    coordinator.opensprinkler_bridge = MagicMock()
+    coordinator.opensprinkler_bridge.async_update_configuration = AsyncMock()
     return coordinator
 
 

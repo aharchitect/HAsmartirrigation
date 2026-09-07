@@ -641,34 +641,34 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
           </div>
 
           ${this._trigger.type===De?q`
-                <div class="form-group">
-                  <label class="form-label"
-                    >${Fo("irrigation_start_triggers.fields.at.name",this.hass.language)}</label
-                  >
-                  <input
-                    class="form-input"
-                    type="time"
-                    .value=${this._trigger.at||"06:00"}
-                    @input=${this._atChanged}
-                  />
-                </div>
-              `:""}
+                  <div class="form-group">
+                    <label class="form-label"
+                      >${Fo("irrigation_start_triggers.fields.at.name",this.hass.language)}</label
+                    >
+                    <input
+                      class="form-input"
+                      type="time"
+                      .value=${this._trigger.at||"06:00"}
+                      @input=${this._atChanged}
+                    />
+                  </div>
+                `:""}
           ${this._trigger.type===Me?q`
-                <div class="form-group">
-                  <label class="form-label"
-                    >${Fo("irrigation_start_triggers.fields.azimuth_angle.name",this.hass.language)}</label
-                  >
-                  <input
-                    class="form-input"
-                    type="number"
-                    .value=${(null===(a=this._trigger.azimuth_angle)||void 0===a?void 0:a.toString())||"90"}
-                    min="0"
-                    max="359"
-                    step="1"
-                    @input=${this._azimuthChanged}
-                  />
-                </div>
-              `:""}
+                  <div class="form-group">
+                    <label class="form-label"
+                      >${Fo("irrigation_start_triggers.fields.azimuth_angle.name",this.hass.language)}</label
+                    >
+                    <input
+                      class="form-input"
+                      type="number"
+                      .value=${(null===(a=this._trigger.azimuth_angle)||void 0===a?void 0:a.toString())||"90"}
+                      min="0"
+                      max="359"
+                      step="1"
+                      @input=${this._azimuthChanged}
+                    />
+                  </div>
+                `:""}
         </div>
 
         <ha-dialog-footer slot="footer">
@@ -680,15 +680,15 @@ function fe(e,a){return(({finisher:e,descriptor:a})=>(t,i)=>{var n;if(void 0===i
             ${Fo("irrigation_start_triggers.dialog.cancel",this.hass.language)}
           </ha-button>
           ${t?"":q`
-                <ha-button
-                  slot="secondaryAction"
-                  appearance="plain"
-                  variant="danger"
-                  @click=${this._deleteTrigger}
-                >
-                  ${Fo("irrigation_start_triggers.dialog.delete",this.hass.language)}
-                </ha-button>
-              `}
+                  <ha-button
+                    slot="secondaryAction"
+                    appearance="plain"
+                    variant="danger"
+                    @click=${this._deleteTrigger}
+                  >
+                    ${Fo("irrigation_start_triggers.dialog.delete",this.hass.language)}
+                  </ha-button>
+                `}
           <ha-button
             slot="primaryAction"
             appearance="accent"
