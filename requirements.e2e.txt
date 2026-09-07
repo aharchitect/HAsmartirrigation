@@ -1,4 +1,4 @@
-pytest==9.0.3
+pytest==9.1.1
 testcontainers==4.13.3
 httpx==0.28.1
 websocket-client==1.8.0
