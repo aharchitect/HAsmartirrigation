@@ -1,6 +1,11 @@
 # Smart Irrigation Development Makefile
 
-.PHONY: help setup test lint format clean install-dev
+.PHONY: help setup test test-e2e test-e2e-debug lint format clean install-dev frontend-e2e
+
+E2E_VENV := .venv-e2e
+E2E_PYTHON := $(E2E_VENV)/bin/python
+E2E_INSTALLED := $(E2E_VENV)/.requirements-installed
+FRONTEND_DIR := custom_components/smart_irrigation/frontend
 
 # Default target
 help:
@@ -12,6 +17,8 @@ help:
 	@echo ""
 	@echo "Testing:"
 	@echo "  test        - Run all tests"
+	@echo "  test-e2e    - Build the frontend and run Docker-backed HA runtime tests"
+	@echo "  test-e2e-debug - Run E2E tests and retain sanitized artifacts"
 	@echo ""
 	@echo "Code Quality:"
 	@echo "  lint        - Run linting (ruff)"
@@ -42,6 +49,22 @@ install-dev:
 test:
 	./.venv/bin/python -m pytest
 
+$(E2E_INSTALLED): requirements.e2e.txt
+	python3.14 -m venv $(E2E_VENV)
+	$(E2E_PYTHON) -m pip install --upgrade pip
+	$(E2E_PYTHON) -m pip install -r requirements.e2e.txt
+	@touch $(E2E_INSTALLED)
+
+frontend-e2e:
+	npm ci --legacy-peer-deps --prefix $(FRONTEND_DIR)
+	npm run build --prefix $(FRONTEND_DIR)
+
+test-e2e: frontend-e2e $(E2E_INSTALLED)
+	$(E2E_PYTHON) -m pytest -c tests_e2e/pytest.ini -p no:cacheprovider tests_e2e/
+
+test-e2e-debug: frontend-e2e $(E2E_INSTALLED)
+	E2E_KEEP_ARTIFACTS=1 $(E2E_PYTHON) -m pytest -c tests_e2e/pytest.ini -p no:cacheprovider tests_e2e/ -s
+
 # Code formatting (matches CI requirements)
 format: install-dev
 	./.venv/bin/black .
@@ -55,6 +78,7 @@ lint: install-dev
 # Clean up
 clean:
 	rm -rf .venv/
+	rm -rf $(E2E_VENV)/ .e2e-runtime/
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete

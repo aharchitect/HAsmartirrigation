@@ -361,6 +361,7 @@ env
 # Python Virtual Environment
 venv/
 .venv/
+.venv-e2e/
 env/
 .env/
 
@@ -403,7 +404,12 @@ test_calendar_fix.py
 /deploy.sh
 /HANDOFF.md
 /CLAUDE.local.md
+.omo/
 
 # Icon-generation scratch (the real brand assets live in custom_components/.../brand/)
 /images/brand/
 examples/opensprinkler-device.json
+
+# Docker-backed Home Assistant runtime test output
+/.e2e-runtime/
+/.e2e-artifacts/

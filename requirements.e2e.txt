@@ -1,0 +1,5 @@
+pytest==9.0.3
+testcontainers==4.13.3
+httpx==0.28.1
+websocket-client==1.8.0
+websockets==15.0.1

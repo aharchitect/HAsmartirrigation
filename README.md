@@ -120,6 +120,8 @@ make setup          # create the venv and install dev dependencies
 ```bash
 make help           # list all commands
 make test           # run all tests
+make test-e2e       # run real Home Assistant runtime tests in Docker
+make test-e2e-debug # retain sanitized runtime diagnostics
 make format         # format code (black)
 make lint           # run linting (ruff)
 make check          # run all CI quality checks
@@ -150,6 +152,24 @@ The project has two test directories:
 Tests use `pytest-asyncio`, so async test functions must be marked accordingly. A few test files that reference not-yet-implemented modules are parked with a `.disabled` extension until they are updated.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development and testing guide.
+
+### Home Assistant runtime tests
+
+The runtime suite supplements the fast mocked tests by starting the Home
+Assistant version pinned in `requirements.test.txt` with Testcontainers. Docker
+Engine and Python 3.14 are required. The first run downloads the pinned Home
+Assistant image and creates a separate `.venv-e2e` environment; it does not add
+the socket-blocking pytest Home Assistant plugins used by the fast suite.
+
+```bash
+make test-e2e
+make test-e2e-debug
+```
+
+Both commands rebuild the checked-in frontend bundle before starting Home
+Assistant. Debug mode writes allowlisted logs and configuration to
+`.e2e-artifacts/`. Authentication files, tokens, databases, and secrets are
+never copied into those artifacts.
 
 ## Acknowledgements
 
