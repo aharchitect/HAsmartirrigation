@@ -9,15 +9,15 @@
 
 # Additional dependencies for test scripts and development
 requests>=2.25.0
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3
 
 # Home Assistant development (useful for local testing)
-homeassistant>=2026.6.4
+homeassistant>=2026.9.1
 
 # Development tools (matches CI pipeline)
 black>=26.5.1
-ruff>=0.1.0
-isort>=8.0.1
+ruff>=0.16.1
+isort>=9.0.1
 pre-commit>=4.6.2
 
 # Documentation
