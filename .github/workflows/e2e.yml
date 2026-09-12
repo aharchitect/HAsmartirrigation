@@ -35,7 +35,7 @@ jobs:
 
       - name: Upload sanitized runtime diagnostics
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: smart-irrigation-ha-runtime
           path: .e2e-artifacts/
