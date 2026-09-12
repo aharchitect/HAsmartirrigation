@@ -27,6 +27,18 @@ class _HttpHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps({"path": self.path}).encode())
 
+    def do_POST(self) -> None:  # noqa: N802
+        if self.headers.get("Authorization") != "Bearer runtime-token":
+            self.send_response(401)
+            self.end_headers()
+            return
+        content_length = int(self.headers["Content-Length"])
+        payload = json.loads(self.rfile.read(content_length))
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"path": self.path, "payload": payload}).encode())
+
     def log_message(self, format: str, *args: str) -> None:
         return
 
@@ -97,6 +109,24 @@ def test_get_raises_for_error_status() -> None:
         pytest.raises(httpx.HTTPStatusError, match="401"),
     ):
         client.get("/api/test")
+
+
+def test_post_service_uses_authenticated_home_assistant_service_endpoint() -> None:
+    # Given: an authenticated Home Assistant runtime client.
+    with (
+        _http_server() as base_url,
+        HomeAssistantRuntimeClient(base_url, "runtime-token") as client,
+    ):
+        # When: a Smart Irrigation service is called.
+        result = client.post_service(
+            "smart_irrigation", "run_opensprinkler_zone", {"zone_id": 7}
+        )
+
+    # Then: the helper uses the service REST endpoint and returns its JSON result.
+    assert result == {
+        "path": "/api/services/smart_irrigation/run_opensprinkler_zone",
+        "payload": {"zone_id": 7},
+    }
 
 
 def test_websocket_authenticates_and_correlates_command_results() -> None:

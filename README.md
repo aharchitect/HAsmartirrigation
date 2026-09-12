@@ -168,8 +168,11 @@ make test-e2e-debug
 
 Both commands rebuild the checked-in frontend bundle before starting Home
 Assistant. Debug mode writes allowlisted logs and configuration to
-`.e2e-artifacts/`. Authentication files, tokens, databases, and secrets are
-never copied into those artifacts.
+`.e2e-artifacts/`. On failure, diagnostics identify both the Home Assistant
+container and the OpenSprinkler mock, including its accepted-request journal.
+Artifacts contain only the staged fixture YAML, redacted HA logs, redacted mock
+logs, and mock metadata. Authentication files, `.storage` data, access tokens,
+databases, credentials, and secrets are never copied into those artifacts.
 
 ## Acknowledgements
 
