@@ -48,6 +48,6 @@
     "prettier": "^3.9.6",
     "rollup": "^4.63.0",
     "rollup-plugin-typescript2": "^0.37.0",
-    "typescript": "^5.6.3"
+    "typescript": "^7.0.2"
   }
 }
