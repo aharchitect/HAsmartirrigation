@@ -29,6 +29,11 @@ _CONTAINER_PORT: Final = 8123
 _STARTUP_TIMEOUT_SECONDS: Final = 180
 _CLIENT_ID: Final = "http://localhost:8123/"
 _USERNAME: Final = "smart-irrigation-e2e"
+_HOME_ASSISTANT_COMMAND: Final = (
+    "python3 -m pip install --no-cache-dir --no-build-isolation "
+    "pyopensprinkler==0.7.22 "
+    "'suntime>=1.3.2' && exec python3 -m homeassistant --config /config"
+)
 _PASSWORD: Final = "smart-irrigation-e2e-password"
 _OPENSPRINKLER_PASSWORD: Final = "opendoor"
 _OPENSPRINKLER_NAME: Final = "E2E OpenSprinkler"
@@ -136,7 +141,8 @@ def start_runtime(
         container = (
             DockerContainer(image)
             .with_volume_mapping(str(config_path), "/config", "rw")
-            .with_bind_ports(_CONTAINER_PORT, ("127.0.0.1", None))
+            .with_command(["sh", "-c", _HOME_ASSISTANT_COMMAND])
+            .with_exposed_ports(_CONTAINER_PORT)
             .with_env("TZ", "UTC")
             .with_network(network)
         )

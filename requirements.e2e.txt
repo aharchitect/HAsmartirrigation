@@ -1,5 +1,5 @@
 pytest==9.0.3
-testcontainers==4.13.3
+testcontainers==4.15.0
 httpx==0.28.1
 websockets==17.1
 websocket-client==1.9.2
