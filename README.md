@@ -174,6 +174,56 @@ Artifacts contain only the staged fixture YAML, redacted HA logs, redacted mock
 logs, and mock metadata. Authentication files, `.storage` data, access tokens,
 databases, credentials, and secrets are never copied into those artifacts.
 
+### Persistent exploratory Home Assistant
+
+For interactive development, the separate Compose environment keeps Home
+Assistant state between runs and live-mounts this checkout's custom components:
+
+```bash
+make exploratory-setup
+```
+
+Setup prepares pinned HACS and OpenSprinkler component files, starts both
+Compose services, waits for the local onboarding API, and creates the first
+Home Assistant user when needed. The development defaults are username
+`smart-irrigation` and password `smart-irrigation-dev-password`. Override them
+without creating a credentials file:
+
+```bash
+EXPLORATORY_HA_USERNAME=my-user \
+EXPLORATORY_HA_PASSWORD='my-local-password' \
+make exploratory-setup
+```
+
+Open <http://localhost:8123> and log in with those credentials. Existing users
+and configuration are preserved when setup is run again; the password and the
+short-lived onboarding access token are not written to repository files or
+printed by the setup command.
+
+HACS files are staged automatically, but HACS activation is intentionally
+manual: add HACS from *Settings → Devices & Services → Add Integration*, then
+complete its GitHub device OAuth flow in the browser. No GitHub token is needed
+by the setup command. The staged OpenSprinkler integration can be configured in
+Home Assistant against `http://opensprinkler-mock:8080`.
+
+Use the lifecycle commands as follows:
+
+```bash
+make exploratory-up       # start the already-prepared stack
+make exploratory-logs     # follow Home Assistant and mock logs
+make exploratory-shell    # open bash, or the available fallback shell, in HA
+make exploratory-down     # stop containers but preserve local HA state
+make exploratory-reset    # refuses: destructive reset requires FORCE=1
+FORCE=1 make exploratory-reset
+```
+
+Persistent state lives only under ignored `.e2e-exploratory/`. Local component
+source changes are visible through the read-only mount after Home Assistant is
+restarted; they are not hot-reloaded. `exploratory-down` never deletes state.
+Only `FORCE=1 make exploratory-reset` removes `.e2e-exploratory/`, after which
+`make exploratory-setup` creates a fresh environment. This workflow is
+independent of the disposable `make test-e2e` runtime.
+
 ## Acknowledgements
 
 Smart Irrigation exists thanks to [Jeroen ter Heerdt](https://github.com/jeroenterheerdt), who created it, designed its evapotranspiration model and maintained it for years. With this release he is passing the torch, and the project carries on in the same spirit. Thank you, Jeroen, for building something so many gardens rely on, and for entrusting it to good hands. 🌱

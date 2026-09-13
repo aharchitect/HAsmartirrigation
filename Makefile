@@ -1,6 +1,6 @@
 # Smart Irrigation Development Makefile
 
-.PHONY: help setup test test-e2e test-e2e-debug lint format clean install-dev frontend-e2e
+.PHONY: help setup test test-e2e test-e2e-debug lint format clean install-dev frontend-e2e exploratory-setup exploratory-up exploratory-logs exploratory-shell exploratory-down exploratory-reset
 
 E2E_VENV := .venv-e2e
 E2E_PYTHON := $(E2E_VENV)/bin/python
@@ -19,6 +19,12 @@ help:
 	@echo "  test        - Run all tests"
 	@echo "  test-e2e    - Build the frontend and run Docker-backed HA runtime tests"
 	@echo "  test-e2e-debug - Run E2E tests and retain sanitized artifacts"
+	@echo "  exploratory-setup - Prepare and start the persistent exploratory HA stack"
+	@echo "  exploratory-up - Start the prepared exploratory HA stack"
+	@echo "  exploratory-logs - Follow exploratory HA and mock logs"
+	@echo "  exploratory-shell - Open a shell in exploratory Home Assistant"
+	@echo "  exploratory-down - Stop the exploratory stack and preserve state"
+	@echo "  exploratory-reset - Delete exploratory state (requires FORCE=1)"
 	@echo ""
 	@echo "Code Quality:"
 	@echo "  lint        - Run linting (ruff)"
@@ -64,6 +70,24 @@ test-e2e: frontend-e2e $(E2E_INSTALLED)
 
 test-e2e-debug: frontend-e2e $(E2E_INSTALLED)
 	E2E_KEEP_ARTIFACTS=1 $(E2E_PYTHON) -m pytest -c tests_e2e/pytest.ini -p no:cacheprovider tests_e2e/ -s
+
+exploratory-setup:
+	./.venv/bin/python scripts/exploratory_commands.py setup
+
+exploratory-up:
+	./.venv/bin/python scripts/exploratory_commands.py up
+
+exploratory-logs:
+	./.venv/bin/python scripts/exploratory_commands.py logs
+
+exploratory-shell:
+	./.venv/bin/python scripts/exploratory_commands.py shell
+
+exploratory-down:
+	./.venv/bin/python scripts/exploratory_commands.py down
+
+exploratory-reset:
+	./.venv/bin/python scripts/exploratory_commands.py reset
 
 # Code formatting (matches CI requirements)
 format: install-dev

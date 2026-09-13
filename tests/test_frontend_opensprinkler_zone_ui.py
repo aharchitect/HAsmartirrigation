@@ -30,7 +30,6 @@ def test_zones_view_exposes_opensprinkler_station_mapping_control():
     assert "CONF_OPENSPRINKLER_INTEGRATION" in source
     assert "CONF_OPENSPRINKLER_STATION_MAP" in source
     assert "OpenSprinkler station" in source
-    assert "opensprinkler_station_map" in source
     assert "config/device_registry/list" in source
     assert "config/entity_registry/list" in source
     assert "opensprinkler_type" in source
@@ -38,3 +37,24 @@ def test_zones_view_exposes_opensprinkler_station_mapping_control():
     assert "mappedToAnotherZone" in source
     assert "?disabled=${mappedToAnotherZone}" in source
     assert "switch.opensprinkler" not in source
+
+
+def test_station_mapping_save_survives_config_refresh() -> None:
+    source = ZONES_VIEW.read_text(encoding="utf-8")
+    handler_start = source.index("private async handleOpenSprinklerStationChange")
+    handler_end = source.index("  private renderWeatherRecords", handler_start)
+    handler = source[handler_start:handler_end]
+
+    assert "void this.handleOpenSprinklerStationChange" in source
+    assert handler.index("this.config = {") < handler.index(
+        "this._suppressNextConfigUpdate = true"
+    )
+    assert handler.index("this._suppressNextConfigUpdate = true") < handler.index(
+        "await saveConfig"
+    )
+    assert handler.index("const previousConfig = this.config") < handler.index(
+        "this.config = previousConfig"
+    )
+    assert handler.index("this.config = previousConfig") < handler.index(
+        "this._suppressNextConfigUpdate = false"
+    )

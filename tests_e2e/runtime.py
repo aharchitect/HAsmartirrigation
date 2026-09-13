@@ -30,7 +30,7 @@ _STARTUP_TIMEOUT_SECONDS: Final = 180
 _CLIENT_ID: Final = "http://localhost:8123/"
 _USERNAME: Final = "smart-irrigation-e2e"
 _PASSWORD: Final = "smart-irrigation-e2e-password"
-_OPENSPRINKLER_PASSWORD: Final = "test-password"
+_OPENSPRINKLER_PASSWORD: Final = "opendoor"
 _OPENSPRINKLER_NAME: Final = "E2E OpenSprinkler"
 OPENSPRINKLER_COMMIT: Final = "fee462ce022aba267ffcabab078652414f7d7111"
 

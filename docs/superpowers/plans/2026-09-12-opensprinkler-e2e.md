@@ -64,7 +64,7 @@ Expected: FAIL because the mock parser and response helpers do not exist.
 - [ ] **Step 3: Implement the protocol helpers and container**
 
 Implement a small request handler using only the Python standard library. It
-must validate `pw == md5("test-password")`, serve `/ja` with the required
+must validate `pw == md5("opendoor")`, serve `/ja` with the required
 controller JSON, accept `/cm` only for `sid=0`, `en=1`, `t=300`, and `qo=0`,
 return `{"result": 1}`, and record accepted requests. Package the handler in a
 minimal Python container with a Docker-network alias `opensprinkler-mock`.
@@ -168,7 +168,7 @@ integration or expose the mock journal.
 
 After HA onboarding and before Smart Irrigation setup, create the
 `opensprinkler` config entry with URL `http://opensprinkler-mock:8080`, password
-`test-password`, `verify_ssl: false`, and name `E2E OpenSprinkler`. Wait for the
+`opendoor`, `verify_ssl: false`, and name `E2E OpenSprinkler`. Wait for the
 real integration to create `switch.e2e_station_enabled` from the mock's `/ja`
 payload.
 

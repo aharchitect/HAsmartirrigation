@@ -13,7 +13,7 @@ from tests_e2e.opensprinkler_mock import (
     parse_controller_request,
 )
 
-PASSWORD_HASH = "dfb450efddbb5387197c84460623675b"
+PASSWORD_HASH = "a6d82bced638de3def1e9bbb4983225c"
 
 
 @pytest.fixture
@@ -61,6 +61,19 @@ def test_controller_state_returns_one_idle_enabled_station() -> None:
     assert response.payload["stations"]["snames"] == ["E2E Station"]
     assert response.payload["programs"] == {"pd": []}
     assert accepted_requests == [{"path": "/ja"}]
+
+
+def test_invalid_password_matches_controller_authentication_response() -> None:
+    accepted_requests: list[ControllerRequest] = []
+
+    response = handle_controller_request(
+        "/ja?pw=incorrect",
+        accepted_requests,
+    )
+
+    assert response.status_code == 200
+    assert response.payload == {"fwv": 219}
+    assert accepted_requests == []
 
 
 def test_wait_for_request_returns_matching_journal_entry(
@@ -113,7 +126,6 @@ def test_wait_for_request_timeout_reports_latest_journal_entry(
             404,
             "unsupported_path",
         ),
-        ("/ja?pw=incorrect", 401, "invalid_password"),
         (
             f"/cm?pw={PASSWORD_HASH}&sid=1&en=1&t=300&qo=0",
             400,

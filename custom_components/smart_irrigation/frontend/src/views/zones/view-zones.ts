@@ -605,14 +605,11 @@ class SmartIrrigationViewZones extends SubscribeMixin(LitElement) {
     return html`
       <div class="setting-row">
         <div class="setting-label">OpenSprinkler station</div>
-        <select class="field" @change=${async (event: Event) => {
-          const value = (event.target as HTMLSelectElement).value;
-          // Persist as opensprinkler_station_map: zone ID -> station entity ID.
-          const stationMap = { ...(this.config?.[CONF_OPENSPRINKLER_STATION_MAP] ?? {}) };
-          if (value) stationMap[String(zone.id)] = value;
-          else delete stationMap[String(zone.id)];
-          await saveConfig(this.hass!, { [CONF_OPENSPRINKLER_STATION_MAP]: stationMap });
-          this.config = { ...this.config!, [CONF_OPENSPRINKLER_STATION_MAP]: stationMap };
+        <select class="field" @change=${(event: Event) => {
+          void this.handleOpenSprinklerStationChange(
+            zone,
+            (event.target as HTMLSelectElement).value,
+          );
         }}>
           <option value="">---</option>
           ${Object.entries(this.opensprinklerStations).map(([entityId, name]) => {
@@ -623,6 +620,43 @@ class SmartIrrigationViewZones extends SubscribeMixin(LitElement) {
           })}
         </select>
       </div>`;
+  }
+
+  private async handleOpenSprinklerStationChange(
+    zone: SmartIrrigationZone,
+    entityId: string,
+  ): Promise<void> {
+    if (!this.hass || zone.id === undefined) {
+      return;
+    }
+
+    const stationMap = {
+      ...(this.config?.[CONF_OPENSPRINKLER_STATION_MAP] ?? {}),
+    };
+    if (entityId) {
+      stationMap[String(zone.id)] = entityId;
+    } else {
+      delete stationMap[String(zone.id)];
+    }
+
+    const previousConfig = this.config;
+    this.config = {
+      ...this.config,
+      [CONF_OPENSPRINKLER_STATION_MAP]: stationMap,
+    } as SmartIrrigationConfig;
+    this._suppressNextConfigUpdate = true;
+    this._scheduleUpdate();
+
+    try {
+      await saveConfig(this.hass, {
+        [CONF_OPENSPRINKLER_STATION_MAP]: stationMap,
+      });
+    } catch (error) {
+      this.config = previousConfig;
+      this._suppressNextConfigUpdate = false;
+      console.error("Failed to save OpenSprinkler station mapping:", error);
+      this._scheduleUpdate();
+    }
   }
 
   private renderWeatherRecords(zone: SmartIrrigationZone): TemplateResult {

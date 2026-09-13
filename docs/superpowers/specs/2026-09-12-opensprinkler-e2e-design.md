@@ -28,7 +28,7 @@ responses required by the real HACS integration.
 The HACS integration first requests:
 
 ```text
-GET /ja?pw=MD5("test-password")
+GET /ja?pw=MD5("opendoor")
 ```
 
 The mock returns a controller payload containing one enabled station named
@@ -37,7 +37,7 @@ The mock returns a controller payload containing one enabled station named
 For an appended five-minute run, the integration sends:
 
 ```text
-GET /cm?pw=MD5("test-password")&sid=0&en=1&t=300&qo=0
+GET /cm?pw=MD5("opendoor")&sid=0&en=1&t=300&qo=0
 ```
 
 The query is validated semantically, independent of parameter ordering. The
@@ -49,7 +49,7 @@ responses may report station 0 as running so the integration can refresh state.
 The runtime setup will stage Smart Irrigation and a pinned, reproducible ref of
 the HACS OpenSprinkler integration, start the mock controller, create the
 OpenSprinkler config entry with URL `http://opensprinkler-mock:8080`, password
-`test-password`, SSL verification disabled, and name `E2E OpenSprinkler`, then
+`opendoor`, SSL verification disabled, and name `E2E OpenSprinkler`, then
 create the Smart Irrigation entry and deterministic zone. The zone is mapped to
 the discovered `switch.e2e_station_enabled` entity through the supported bridge
 configuration path.

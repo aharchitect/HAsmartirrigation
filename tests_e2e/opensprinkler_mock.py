@@ -19,7 +19,7 @@ if __name__ != "__main__":
 
     from tests_e2e.container_runtime import container_logs
 
-_PASSWORD_HASH: Final = hashlib.md5(b"test-password").hexdigest()  # noqa: S324
+_PASSWORD_HASH: Final = hashlib.md5(b"opendoor").hexdigest()  # noqa: S324
 _CONTAINER_ALIAS: Final = "opensprinkler-mock"
 _CONTAINER_PORT: Final = 8080
 _JOURNAL_PREFIX: Final = "OPENSPRINKLER_ACCEPTED "
@@ -95,6 +95,8 @@ def handle_controller_request(
     try:
         request = parse_controller_request(target)
     except ControllerRequestError as error:
+        if error.code == "invalid_password":
+            return ControllerResponse(status_code=200, payload={"fwv": 219})
         return ControllerResponse(
             status_code=error.status_code,
             payload={"result": 0, "error": error.code},
