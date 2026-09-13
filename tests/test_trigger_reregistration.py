@@ -83,3 +83,29 @@ async def test_unrelated_settings_do_not_reregister():
     await _update(coordinator, {const.CONF_DAYS_BETWEEN_IRRIGATION: 3})
 
     assert coordinator.register_start_event.await_count == 0
+
+
+async def test_partial_config_updates_reconfigure_timers_with_full_config():
+    coordinator = _coordinator()
+    current_config = {
+        const.CONF_AUTO_CALC_ENABLED: False,
+        const.CONF_AUTO_UPDATE_ENABLED: False,
+        const.CONF_AUTO_CLEAR_ENABLED: False,
+    }
+    coordinator.store.async_get_config = AsyncMock(return_value=current_config)
+
+    await _update(
+        coordinator,
+        {const.CONF_OPENSPRINKLER_STATION_MAP: {"0": "switch.opensprinkler_0"}},
+    )
+
+    for setup_timer in (
+        coordinator.set_up_auto_calc_time,
+        coordinator.set_up_auto_update_time,
+        coordinator.set_up_auto_clear_time,
+    ):
+        setup_timer.assert_awaited_once()
+        assert setup_timer.await_args.args[0][const.CONF_AUTO_CALC_ENABLED] is False
+        assert setup_timer.await_args.args[0][const.CONF_OPENSPRINKLER_STATION_MAP] == {
+            "0": "switch.opensprinkler_0"
+        }

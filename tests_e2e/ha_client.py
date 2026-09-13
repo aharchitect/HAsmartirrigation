@@ -109,6 +109,9 @@ class HomeAssistantRuntimeClient(AbstractContextManager["HomeAssistantRuntimeCli
         response.raise_for_status()
         return response
 
+    def post_service(self, domain: str, service: str, payload: JsonObject) -> JsonValue:
+        return self.post(f"/api/services/{domain}/{service}", payload).json()
+
     def websocket(self) -> HomeAssistantWebSocket:
         return HomeAssistantWebSocket(self.base_url, self._token)
 
