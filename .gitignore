@@ -413,3 +413,6 @@ examples/opensprinkler-device.json
 # Docker-backed Home Assistant runtime test output
 /.e2e-runtime/
 /.e2e-artifacts/
+/.e2e-exploratory/
+/.env.exploratory
+/docker-compose.exploratory.override.yml

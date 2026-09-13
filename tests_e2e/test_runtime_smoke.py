@@ -55,12 +55,17 @@ def test_websocket_config_zone_and_entity_platforms_are_available(
     entity_ids = {state["entity_id"] for state in states}
 
     assert config["use_weather_service"] is False
-    assert zones[0]["name"] == "Runtime Zone"
-    assert zones[0]["state"] == "disabled"
-    assert "sensor.smart_irrigation_runtime_zone" in entity_ids
-    assert "number.smart_irrigation_runtime_zone_multiplier" in entity_ids
-    assert "button.smart_irrigation_runtime_zone_reset_bucket" in entity_ids
-    assert "binary_sensor.smart_irrigation_runtime_zone_irrigation_needed" in entity_ids
+    assert zones[0]["name"] == "Runtime OpenSprinkler Zone"
+    assert zones[0]["state"] == "manual"
+    assert "sensor.smart_irrigation_runtime_opensprinkler_zone" in entity_ids
+    assert "number.smart_irrigation_runtime_opensprinkler_zone_multiplier" in entity_ids
+    assert (
+        "button.smart_irrigation_runtime_opensprinkler_zone_reset_bucket" in entity_ids
+    )
+    assert (
+        "binary_sensor.smart_irrigation_runtime_opensprinkler_zone_irrigation_needed"
+        in entity_ids
+    )
 
 
 def test_mutation_survives_graceful_restart(ha_runtime: HomeAssistantRuntime) -> None:
