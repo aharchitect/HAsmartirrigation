@@ -357,6 +357,10 @@ class _FakeHomeAssistantRuntime:
 class _FakeDockerContainer:
     def __init__(self) -> None:
         self.network: _FakeNetwork | None = None
+        self.id = "fake-container-id"
+
+    def get_wrapped_container(self) -> Self:
+        return self
 
     def with_volume_mapping(self, source: str, destination: str, mode: str) -> Self:
         return self
