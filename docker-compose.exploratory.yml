@@ -1,0 +1,38 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:${HOME_ASSISTANT_VERSION}
+    ports:
+      - "127.0.0.1:8123:8123"
+    volumes:
+      - .e2e-exploratory/config:/config
+      - ./custom_components:/config/local_custom_components:ro
+    depends_on:
+      opensprinkler-mock:
+        condition: service_healthy
+    networks:
+      - exploratory
+
+  opensprinkler-mock:
+    image: python:3.14-alpine
+    command: python -u /app/opensprinkler_mock.py --serve
+    volumes:
+      - ./tests_e2e/opensprinkler_mock.py:/app/opensprinkler_mock.py:ro
+    expose:
+      - "8080"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import socket; socket.create_connection(('127.0.0.1', 8080), 2).close()
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks:
+      exploratory:
+        aliases:
+          - opensprinkler-mock
+
+networks:
+  exploratory:
+    driver: bridge

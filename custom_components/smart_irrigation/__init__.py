@@ -696,6 +696,9 @@ class SmartIrrigationCoordinator(
     async def async_update_config(self, data):  # noqa: D102
         _LOGGER.debug("[async_update_config]: config changed: %s", data)
 
+        timer_config = await self.store.async_get_config()
+        timer_config.update(data)
+
         if const.CONF_OPENSPRINKLER_STATION_MAP in data:
             self.opensprinkler_bridge.validate_station_map(
                 data[const.CONF_OPENSPRINKLER_STATION_MAP]
@@ -727,11 +730,11 @@ class SmartIrrigationCoordinator(
                     )
 
         # handle auto calc changes
-        await self.set_up_auto_calc_time(data)
+        await self.set_up_auto_calc_time(timer_config)
         # handle auto update changes, includings updating OWMClient cache settings
-        await self.set_up_auto_update_time(data)
+        await self.set_up_auto_update_time(timer_config)
         # handle auto clear changes
-        await self.set_up_auto_clear_time(data)
+        await self.set_up_auto_clear_time(timer_config)
         await self.store.async_update_config(data)
         # Re-evaluate the observed-watering subscription (the feature toggle may
         # have just changed).
