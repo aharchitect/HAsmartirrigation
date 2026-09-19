@@ -274,6 +274,9 @@ def test_start_runtime_attaches_home_assistant_to_shared_network(
 
     # Then
     assert container.network is network
+    assert container.exposed_ports == (8123,)
+    assert container.command == ["sh", "-c", runtime_module._HOME_ASSISTANT_COMMAND]
+    assert "--no-build-isolation" in runtime_module._HOME_ASSISTANT_COMMAND
     assert runtime.opensprinkler_mock is opensprinkler_mock
 
 
@@ -357,6 +360,8 @@ class _FakeHomeAssistantRuntime:
 class _FakeDockerContainer:
     def __init__(self) -> None:
         self.network: _FakeNetwork | None = None
+        self.exposed_ports: tuple[int, ...] = ()
+        self.command: list[str] | None = None
         self.id = "fake-container-id"
 
     def get_wrapped_container(self) -> Self:
@@ -365,7 +370,12 @@ class _FakeDockerContainer:
     def with_volume_mapping(self, source: str, destination: str, mode: str) -> Self:
         return self
 
-    def with_bind_ports(self, container: int, host: tuple[str, None]) -> Self:
+    def with_command(self, command: list[str]) -> Self:
+        self.command = command
+        return self
+
+    def with_exposed_ports(self, *ports: int) -> Self:
+        self.exposed_ports = ports
         return self
 
     def with_env(self, name: str, value: str) -> Self:
