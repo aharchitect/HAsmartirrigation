@@ -25,11 +25,11 @@
     "custom-card-helpers": "^2.0.0",
     "intl-messageformat": "^10.7.3",
     "lit": "^3.3.3",
-    "moment": "^2.29.4"
+    "moment": "^2.31.0"
   },
   "devDependencies": {
-    "@babel/cli": "^8.0.4",
-    "@babel/core": "^8.0.1",
+    "@babel/cli": "^8.0.6",
+    "@babel/core": "^8.0.6",
     "@babel/plugin-proposal-decorators": "^8.0.2",
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@eslint/eslintrc": "^3.3.6",
@@ -39,14 +39,14 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.70.0",
+    "@typescript-eslint/eslint-plugin": "^8.70.1",
     "@typescript-eslint/parser": "^8.33.0",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.6",
-    "prettier": "^3.9.6",
-    "rollup": "^4.63.0",
+    "prettier": "^3.9.9",
+    "rollup": "^4.63.4",
     "rollup-plugin-typescript2": "^0.37.0",
     "typescript": "^5.6.3"
   }
